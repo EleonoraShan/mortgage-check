@@ -15,14 +15,14 @@ export const ClientWorkspace = () => {
   return (
     <div className="flex flex-1 overflow-hidden grid grid-cols-3 gap-6 p-6">
       {/* Left Panel - Documents and Client Info */}
-      <div className="space-y-6 flex-1 overflow-y-auto">
-        <div className='flex flex-1 grid grid-row-2 gap-6'>
-          <div>
-            <ClientDetails />
-          </div>
-          <div>
-            <DocumentManager />
-          </div>
+      <div className="flex-1 flex-col overflow-y-auto overflow-x-hidden">
+        {/* flex flex-1 flex-row grid grid-row-2 gap-6 */}
+        <div className='space-y-6'>
+
+          <ClientDetails />
+
+          <DocumentManager />
+
         </div>
       </div>
 

@@ -27,8 +27,8 @@ export const DocumentPreview = ({
         }
       />
       <FileText className="h-5 w-5 text-primary flex-shrink-0" />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{doc.name}</p>
+      <div className="min-w-0">
+        <p className="text-sm font-medium w-full truncate">{doc.name}</p>
         <p className="text-xs text-muted-foreground">
           {formatFileSize(doc.file.size)}
         </p>

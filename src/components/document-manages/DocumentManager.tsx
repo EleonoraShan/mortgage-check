@@ -10,10 +10,10 @@ export const DocumentManager = () => {
   const { files } = useClientContext();
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 flex flex-col flex-1">
       <UploadFiles />
 
-      <ScrollArea className="h-[400px]">
+      <ScrollArea className="min-h-[400px]">
         <div className="space-y-2">
           {files.length === 0 ? (
             <DocumentEmptyState />
