@@ -1,0 +1,88 @@
+import { Download, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
+import { useToast } from '../../hooks/use-toast';
+import { useClientContext } from '../client-screen';
+import { Button } from '../ui/button';
+import { Card } from '../ui/card';
+import { AnalysisContent } from './analysis-content';
+import { useExportAnalysisToPdf } from './export-to-pdf';
+
+
+export const AnalysisResults = () => {
+  const { files, setAnalysisItems } = useClientContext();
+  const { exportToPDF } = useExportAnalysisToPdf()
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisComplete, setAnalysisComplete] = useState(files.length > 0);
+  const { toast } = useToast();
+
+  const runAnalysis = () => {
+    setIsAnalyzing(true);
+    setTimeout(() => {
+      setAnalysisItems([
+        {
+          type: 'success',
+          title: 'Income Verification Complete',
+          description: 'Pay stubs show consistent monthly income of $8,500',
+          document: 'paystub_march_2024.pdf'
+        },
+        {
+          type: 'concern',
+          title: 'Credit Score Below Threshold',
+          description: 'Credit score of 640 is below preferred 680 threshold',
+          document: 'credit_report.pdf'
+        },
+        {
+          type: 'warning',
+          title: 'High Debt-to-Income Ratio',
+          description: 'Current DTI of 42% is above recommended 36%',
+          document: 'bank_statement.pdf'
+        },
+        {
+          type: 'success',
+          title: 'Employment History Verified',
+          description: '3+ years consistent employment with current employer',
+          document: 'employment_letter.pdf'
+        }
+      ])
+      setIsAnalyzing(false);
+      setAnalysisComplete(true);
+      toast({
+        title: "Analysis Complete",
+        description: "Document analysis has been completed successfully",
+      });
+    }, 2000);
+  };
+
+  return (
+    <Card className="p-6 h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Analysis Results</h3>
+        <div className="flex gap-2">
+          <Button
+            onClick={runAnalysis}
+            disabled={isAnalyzing || files.length === 0}
+            size="sm"
+          >
+            {isAnalyzing ? (
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-2" />
+            )}
+            Analyze
+          </Button>
+          <Button
+            onClick={exportToPDF}
+            disabled={!analysisComplete}
+            size="sm"
+            variant="outline"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export PDF
+          </Button>
+        </div>
+      </div>
+
+      <AnalysisContent isAnalyzing={isAnalyzing} />
+    </Card>
+  );
+};

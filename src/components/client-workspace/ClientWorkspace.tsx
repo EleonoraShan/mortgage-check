@@ -1,17 +1,10 @@
-import { useState } from 'react';
-import { AnalysisResults } from '../AnalysisResults';
+import { AnalysisResults } from '../analysis/AnalysisResults';
 import { ChatInterface } from '../chat-interface/ChatInterface';
 import { ClientDetails } from '../client-details';
-import { useClientContext } from '../client-screen/client-provider';
 import { DocumentManager } from '../document-manages/DocumentManager';
 
 
 export const ClientWorkspace = () => {
-  const { name, loanAmount, activeDocuments } = useClientContext();
-  const [documents] = useState<File[]>([]);
-
-
-  // flex-1 grid grid-cols-3 gap-6 p-6
   return (
     <div className="flex flex-1 overflow-hidden grid grid-cols-3 gap-6 p-6">
       {/* Left Panel - Documents and Client Info */}
@@ -28,11 +21,7 @@ export const ClientWorkspace = () => {
 
       {/* Middle Panel - Analysis Results */}
       <div className="flex-1 overflow-y-auto">
-        <AnalysisResults
-          documents={documents.filter(doc => activeDocuments.includes(doc.name))}
-          loanAmount={loanAmount}
-          clientName={name}
-        />
+        <AnalysisResults />
       </div>
 
       {/* Right Panel - Chat Interface */}

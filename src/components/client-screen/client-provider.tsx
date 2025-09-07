@@ -1,4 +1,5 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useState } from 'react';
+import { AnalysisItemI } from '../analysis/analysis.interfaces';
 
 export interface AttachedFile {
   id: string;
@@ -27,6 +28,10 @@ interface ClientContextProps {
   addChatMessages: (newMessage: Message) => void
   activeDocuments: string[]
   toggleIsActive: (id: string) => void
+  analysisItems: AnalysisItemI[]
+  setAnalysisItems: React.Dispatch<React.SetStateAction<AnalysisItemI[]>>
+  affordabilityScore: number
+  setAffordabilityScore: React.Dispatch<React.SetStateAction<number>>
 }
 export const ClientContext = createContext<ClientContextProps | undefined>(
   undefined,
@@ -51,6 +56,8 @@ export const ClientContextProvider = ({
   clientData,
 }: ClientProviderProps) => {
   const [files, setFiles] = useState<AttachedFile[]>([])
+  const [analysisItems, setAnalysisItems] = useState<AnalysisItemI[]>([])
+  const [affordabilityScore, setAffordabilityScore] = useState(0)
   const [chatMessages, setChatMessages] = useState<Message[]>([{
     id: "1",
     content: "You are a helpful assigtant for a UK based mortgage broker. Your role is to analyse the documents and information submitted by the broker and determine if the client can be safely lended to. You should amongs other things verify consistency of provided information, their expenditure and any concerning spending and whether they can afford the morgage",
@@ -86,8 +93,13 @@ export const ClientContextProvider = ({
       activeDocuments,
       toggleIsActive,
       removeFile,
+      analysisItems,
+      setAnalysisItems,
+      affordabilityScore,
+      setAffordabilityScore
     };
-  }, [clientData, files, addFiles, chatMessages, addChatMessages, toggleIsActive, activeDocuments, removeFile]);
+  }, [clientData, files, addFiles, chatMessages, addChatMessages, toggleIsActive, activeDocuments, removeFile, analysisItems,
+    setAnalysisItems, affordabilityScore, setAffordabilityScore]);
 
   return (
     <ClientContext.Provider value={value}>
