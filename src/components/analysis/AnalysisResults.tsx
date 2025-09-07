@@ -57,8 +57,8 @@ export const AnalysisResults = () => {
   // };
 
   const onRunAnalysis = async () => {
-    console.log("starting")
-    await runAnalysis()
+    const results = await runAnalysis()
+    setAnalysisItems(results)
   }
   return (
     <Card className="p-6 h-full">
@@ -67,10 +67,10 @@ export const AnalysisResults = () => {
         <div className="flex gap-2">
           <Button
             onClick={onRunAnalysis}
-            disabled={isAnalyzing || files.length === 0}
+            disabled={isAnalysisRunning || files.length === 0}
             size="sm"
           >
-            {isAnalyzing ? (
+            {isAnalysisRunning ? (
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
             ) : (
               <RefreshCw className="h-4 w-4 mr-2" />

@@ -24,7 +24,7 @@ export const useRunAnalysis = () => {
             ${'Eleonora is currently employed at Google as a software engineer making £100,000 a year. She has passed her probation 3 months ago'}
             
             Include items for which more information should be submitted.
-            
+
             Output the analysis as a JSON array of objects with the keys:
             title, risk_status, explanation. 
             The risk_status should be one of Low, Medium, High, Insufficient Information.
@@ -34,39 +34,13 @@ export const useRunAnalysis = () => {
           `
         }
       ],
-      // format: {
-      //   "type": "object",
-      //   "properties": {
-      //     "overall-risk": {
-      //       "type": "string"
-      //     },
-      //     "identity-verification": {
-      //       "type": "string"
-      //     },
-      //     "credit-score": {
-      //       "type": "string"
-      //     },
-      //     "employment-history": {
-      //       "type": "string"
-      //     },
-      //     "debt-to-income-ratio": {
-      //       "type": "string"
-      //     }
-      //   },
-      //   "required": [
-      //     "overall-risk",
-      //     "identity-verification", 
-      //     "credit-score",
-      //     "employment-history",
-      //     "debt-to-income-ratio"
-      //   ]}
     })
 
     setIsAnalysisRunning(false)
 
     console.log({response})
     console.log({responseFormatted: JSON.parse(response.message.content)})
-    return response
+    return JSON.parse(response.message.content)
   }
 
   return {

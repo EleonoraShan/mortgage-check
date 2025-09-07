@@ -1,6 +1,5 @@
 export interface AnalysisItemI {
-  type: 'concern' | 'success' | 'warning';
+  risk_status: 'Low' | 'Medium' | 'High' | 'Insufficient Information';
   title: string;
-  description: string;
-  document: string;
+  explanation: string;
 }
