@@ -2,8 +2,10 @@ import { decode, encode } from 'gpt-tokenizer';
 
 import ollama from 'ollama';
 import { AnalysisItemI } from "../analysis/analysis.interfaces";
+import { defaultModel } from './constants';
+import { parseOllamaJson } from './parse-ollama-json';
 
-const model = 'gpt-oss:20b'
+const model = defaultModel
 
 
 // ---------------------------------------------------------------------------
@@ -68,16 +70,7 @@ async function summariseChunk(excerpt: string) {
 
   console.log({ response})
 
-  // Ollama should return raw JSON.  Parse defensively.
-  let json;
-  try {
-    json = JSON.parse(response.message.content);
-  } catch (e) {
-    // If there's stray text, grab the first JSON block
-    const m = response.message.content.match(/({.*})/s);
-    json = m ? JSON.parse(m[1]) : {};
-  }
-  return json;
+  return parseOllamaJson(response.message.content)
 }
 
 // ---------------------------------------------------------------------------
@@ -93,16 +86,7 @@ async function mergeSummaries(summaries: {analysis: AnalysisItemI[], notes: stri
     stream: false,
   });
 
-    // Ollama should return raw JSON.  Parse defensively.
-    let json;
-    try {
-      json = JSON.parse(response.message.content);
-    } catch (e) {
-      // If there's stray text, grab the first JSON block
-      const m = response.message.content.match(/({.*})/s);
-      json = m ? JSON.parse(m[1]) : {};
-    }
-    return json;
+    return parseOllamaJson(response.message.content);
 }
 
 // ---------------------------------------------------------------------------

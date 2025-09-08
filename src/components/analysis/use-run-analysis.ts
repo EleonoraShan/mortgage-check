@@ -3,9 +3,11 @@ import ollama from 'ollama';
 import { useState } from "react";
 import { useClientContext } from '../client-screen';
 import { summarisePdf } from '../document-processing';
+import { getOverallAnalysisPrompt } from '../document-processing/analysis-across-documents-template';
+import { parseOllamaJson } from '../document-processing/parse-ollama-json';
 
 export const useRunAnalysis = () => {
-  const { chatMessages, files, updateFileAnalysis } = useClientContext();
+  const { chatMessages, files, updateFileAnalysis, name, loanAmount } = useClientContext();
   const [isAnalysisRunning, setIsAnalysisRunning] = useState(false)
   const runAnalysis = async () => {
     setIsAnalysisRunning(true)
@@ -31,34 +33,18 @@ export const useRunAnalysis = () => {
       messages: [
         {
           role: "system",
-          content:
-            "You are a mortgage‑broker risk‑analysis assistant. Keep your answer strictly in JSON."
-        },
-        {
-          role: "system",
-          content: `
-            Please produce a risk analysis for a mortgage broker using the following client data:
-            
-            ${'Eleonora is currently employed at Google as a software engineer making £100,000 a year. She has passed her probation 3 months ago'}
-            
-            Include items for which more information should be submitted.
-
-            Output the analysis as a JSON array of objects with the keys:
-            title, risk_status, explanation. 
-            The risk_status should be one of Low, Medium, High, Insufficient Information.
-            No extra text outside the JSON array.
-
-
-          `
+          content: getOverallAnalysisPrompt(JSON.stringify(summaries), JSON.stringify({ name, loanAmount }))
         }
       ],
     })
 
     setIsAnalysisRunning(false)
 
+    const parsedData = parseOllamaJson(response.message.content)
+
     console.log({response})
-    console.log({responseFormatted: JSON.parse(response.message.content)})
-    return JSON.parse(response.message.content)
+    console.log({parsedData})
+    return parsedData
   }
 
   return {
@@ -66,3 +52,20 @@ export const useRunAnalysis = () => {
     isAnalysisRunning
   }
 }
+
+
+
+// content: `
+// Please produce a risk analysis for a mortgage broker using the following client data:
+
+// ${'Eleonora is currently employed at Google as a software engineer making £100,000 a year. She has passed her probation 3 months ago'}
+
+// Include items for which more information should be submitted.
+
+// Output the analysis as a JSON array of objects with the keys:
+// title, risk_status, explanation. 
+// The risk_status should be one of Low, Medium, High, Insufficient Information.
+// No extra text outside the JSON array.
+
+
+// `

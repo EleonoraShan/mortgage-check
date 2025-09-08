@@ -31,7 +31,7 @@ export const UploadFiles = () => {
     processedFiles.forEach((file) => {
       const systemFileContextMessage: Message = {
         id: file.id,
-        content: `The following is the text of the file ${file.file.name} which should be used as context for answering questions about the mortgage application: ${file.fileText}. This message does not need a response.`,
+        content: `The following is the text of the file ${file.file.name} which should be used as context for answering questions about the mortgage application: ${file.fileText}`,
         role: "system",
         timestamp: new Date(),
       };
