@@ -1,5 +1,6 @@
 import { Upload } from 'lucide-react';
-import { useRef } from 'react';
+import { GlobalWorkerOptions } from 'pdfjs-dist';
+import { useEffect, useRef } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import { processDocument } from '../../lib/process-pdf';
 import { useClientContext } from '../client-screen';
@@ -11,38 +12,50 @@ export const UploadFiles = () => {
   const { addFiles, addChatMessages, toggleIsActive } = useClientContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  useEffect(() => {
+    GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdfjs/pdf.worker.min.mjs`;;
+  }, []);
+
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
+    try {
+      const files = Array.from(event.target.files || []);
 
-    if (files.length === 0) { return; }
+      if (files.length === 0) { return; }
 
-    const newFilePromises = Array.from(files).map(async file => ({
-      id: Date.now().toString() + Math.random(),
-      file,
-      selected: true, // Default to selected
-      fileText: await processDocument(file),
-      name: file.name,
-    }));
-    const processedFiles = await Promise.all(newFilePromises)
-    addFiles(processedFiles);
 
-    // Add new file to ollama context
-    processedFiles.forEach((file) => {
-      const systemFileContextMessage: Message = {
-        id: file.id,
-        content: `The following is the text of the file ${file.file.name} which should be used as context for answering questions about the mortgage application: ${file.fileText}`,
-        role: "system",
-        timestamp: new Date(),
-      };
-      addChatMessages(systemFileContextMessage);
-      toggleIsActive(file.id)
-    })
+      const newFilePromises = Array.from(files).map(async file => ({
+        id: Date.now().toString() + Math.random(),
+        file,
+        selected: true, // Default to selected
+        fileText: await processDocument(file),
+        name: file.name,
+      }));
+      const processedFiles = await Promise.all(newFilePromises)
+      addFiles(processedFiles);
 
-    toast({
-      title: "Documents added",
-      description: `${files.length} document(s) added successfully`,
-    });
+      // Add new file to ollama context
+      processedFiles.forEach((file) => {
+        const systemFileContextMessage: Message = {
+          id: file.id,
+          content: `The following is the text of the file ${file.file.name} which should be used as context for answering questions about the mortgage application: ${file.fileText}`,
+          role: "system",
+          timestamp: new Date(),
+        };
+        addChatMessages(systemFileContextMessage);
+        toggleIsActive(file.id)
+      })
+
+      toast({
+        title: "Documents added",
+        description: `${files.length} document(s) added successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Document failed to attach",
+        description: JSON.stringify(error),
+      })
+    }
 
   };
 
