@@ -1,6 +1,4 @@
 import { Download, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
-import { useToast } from '../../hooks/use-toast';
 import { useClientContext } from '../client-screen';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -10,15 +8,10 @@ import { useRunAnalysis } from './use-run-analysis';
 
 
 export const AnalysisResults = () => {
-  const { files, setAnalysisItems } = useClientContext();
+  const { files, setAnalysisItems, analysisItems } = useClientContext();
   const { exportToPDF } = useExportAnalysisToPdf()
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisComplete, setAnalysisComplete] = useState(files.length > 0);
-  const { toast } = useToast();
 
   const { runAnalysis, isAnalysisRunning } = useRunAnalysis();
-
-  // const runAnalysis = () => {
   //   setIsAnalyzing(true);
   //   setTimeout(() => {
   //     setAnalysisItems([
@@ -79,7 +72,7 @@ export const AnalysisResults = () => {
           </Button>
           <Button
             onClick={exportToPDF}
-            disabled={!analysisComplete}
+            disabled={analysisItems.length === 0}
             size="sm"
             variant="outline"
           >
@@ -89,7 +82,7 @@ export const AnalysisResults = () => {
         </div>
       </div>
 
-      <AnalysisContent isAnalyzing={isAnalyzing} />
+      <AnalysisContent isAnalyzing={isAnalysisRunning} />
     </Card>
   );
 };
