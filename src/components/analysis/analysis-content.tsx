@@ -6,7 +6,7 @@ import { NoFilesOrAnalysis } from './no-files';
 
 
 export const AnalysisContent = ({ isAnalyzing }: { isAnalyzing: boolean }) => {
-  const { files, loanAmount, analysisItems } = useClientContext();
+  const { files, analysisItems } = useClientContext();
 
   if (isAnalyzing) {
     return <AnalysisLoading />

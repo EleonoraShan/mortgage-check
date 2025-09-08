@@ -1,5 +1,5 @@
 
-import ollama from 'ollama';
+import ollama from 'ollama/browser'
 import { useEffect, useRef, useState } from "react";
 import { processDocument } from '../lib/process-pdf';
 import "./Chatbot.css";

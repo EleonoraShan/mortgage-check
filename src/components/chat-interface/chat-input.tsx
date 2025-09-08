@@ -1,5 +1,5 @@
 import { Send } from 'lucide-react';
-import ollama from 'ollama';
+import ollama from 'ollama/browser'
 import { useState } from 'react';
 import { useClientContext } from '../client-screen';
 import { Message } from '../client-screen/client-provider';

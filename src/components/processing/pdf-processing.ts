@@ -1,6 +1,6 @@
 import { decode, encode } from 'gpt-tokenizer';
 
-import ollama from 'ollama';
+import ollama from 'ollama/browser'
 import { AnalysisItemI } from "../analysis/analysis.interfaces";
 import { defaultModel } from './constants';
 import { parseOllamaJson } from './parse-ollama-json';

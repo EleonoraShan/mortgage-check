@@ -5,7 +5,6 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { ScrollArea } from '../components/ui/scroll-area';
-import { useToast } from '../hooks/use-toast';
 
 interface ChatInterfaceProps {
   clientName: string;
@@ -32,7 +31,6 @@ export const ChatInterface = ({ clientName, documents, loanAmount }: ChatInterfa
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -113,8 +111,8 @@ export const ChatInterface = ({ clientName, documents, loanAmount }: ChatInterfa
               >
                 <div
                   className={`inline-block p-3 rounded-lg ${message.type === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted'
                     }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>

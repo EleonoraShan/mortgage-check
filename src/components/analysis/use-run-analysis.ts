@@ -1,17 +1,20 @@
 import { PromisePool } from '@supercharge/promise-pool';
-import ollama from 'ollama';
+import ollama from 'ollama/browser'
 import { useState } from "react";
 import { useClientContext } from '../client-screen';
-import { summarisePdf } from '../document-processing';
-import { getOverallAnalysisPrompt } from '../document-processing/analysis-across-documents-template';
-import { parseOllamaJson } from '../document-processing/parse-ollama-json';
+import { summarisePdf } from '../processing';
+import { getOverallAnalysisPrompt } from '../processing/analysis-across-documents-template';
+import { ask } from '../processing/call-model';
+import { parseOllamaJson } from '../processing/parse-ollama-json';
 
 export const useRunAnalysis = () => {
-  const { chatMessages, files, updateFileAnalysis, name, loanAmount } = useClientContext();
+  const { files, updateFileAnalysis, name, loanAmount } = useClientContext();
   const [isAnalysisRunning, setIsAnalysisRunning] = useState(false)
   const runAnalysis = async () => {
     setIsAnalysisRunning(true)
-    const { results: summaries, errors } = await PromisePool
+    const basicAsk = await ask('respond with hello world')
+    console.log({ basicAsk})
+    const { results: summaries } = await PromisePool
       .withConcurrency(1)
       .for(files)
       .process(async (file) => {

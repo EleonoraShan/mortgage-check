@@ -37,11 +37,6 @@ export const ClientTabs = () => {
     }
   };
 
-  const updateClientLoanAmount = (clientId: string, amount: number) => {
-    setClients(clients.map(c =>
-      c.id === clientId ? { ...c, loanAmount: amount } : c
-    ));
-  };
 
   const activeClientData = clients.find(c => c.id === activeClient);
 
