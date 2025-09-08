@@ -1,12 +1,30 @@
+import { PromisePool } from '@supercharge/promise-pool';
 import ollama from 'ollama';
 import { useState } from "react";
 import { useClientContext } from '../client-screen';
+import { summarisePdf } from '../document-processing';
 
 export const useRunAnalysis = () => {
-  const { chatMessages, files } = useClientContext();
+  const { chatMessages, files, updateFileAnalysis } = useClientContext();
   const [isAnalysisRunning, setIsAnalysisRunning] = useState(false)
   const runAnalysis = async () => {
     setIsAnalysisRunning(true)
+    const { results: summaries, errors } = await PromisePool
+      .withConcurrency(1)
+      .for(files)
+      .process(async (file) => {
+        // only analyse each file once
+        if (file.fileAnalysisSummaryJson) {
+          return file.fileAnalysisSummaryJson
+        }
+        const summary = await summarisePdf(file.fileText)
+        
+        updateFileAnalysis(file.id, JSON.stringify(summary))
+        
+        return summary
+      })
+
+    console.log({ summaries })
     const response = await ollama.chat({
       model: 'gpt-oss:20b', 
       stream: false,

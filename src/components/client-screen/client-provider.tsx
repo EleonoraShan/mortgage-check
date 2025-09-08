@@ -8,6 +8,7 @@ export interface AttachedFile {
   fileText: string;
   preview?: string;
   selected: boolean;
+  fileAnalysisSummaryJson?: string;
 }
 
 
@@ -32,6 +33,7 @@ interface ClientContextProps {
   setAnalysisItems: React.Dispatch<React.SetStateAction<AnalysisItemI[]>>
   affordabilityScore: number
   setAffordabilityScore: React.Dispatch<React.SetStateAction<number>>
+  updateFileAnalysis: (id: string, analysis: string) => void
 }
 export const ClientContext = createContext<ClientContextProps | undefined>(
   undefined,
@@ -83,6 +85,16 @@ export const ClientContextProvider = ({
     }
   }, [setActiveDocuments, activeDocuments])
 
+  const updateFileAnalysis = (id: string, analysis: string) => {
+    setFiles((files) => files.map((file) => {
+      if (file.id !== id) {
+        return file
+      }
+
+      return { ...file, fileAnalysisSummaryJson: analysis }
+    }))
+  }
+
   const removeFile = useCallback((fileId: string) => setFiles((currentFiles) => currentFiles.filter((file) => file.id !== fileId)), [files])
   const value = useMemo(() => {
     return {
@@ -96,10 +108,11 @@ export const ClientContextProvider = ({
       analysisItems,
       setAnalysisItems,
       affordabilityScore,
-      setAffordabilityScore
+      setAffordabilityScore,
+      updateFileAnalysis
     };
   }, [clientData, files, addFiles, chatMessages, addChatMessages, toggleIsActive, activeDocuments, removeFile, analysisItems,
-    setAnalysisItems, affordabilityScore, setAffordabilityScore]);
+    setAnalysisItems, affordabilityScore, setAffordabilityScore, updateFileAnalysis]);
 
   return (
     <ClientContext.Provider value={value}>

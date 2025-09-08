@@ -2,5 +2,6 @@ import pdfToText from "react-pdftotext"
 
 
 export const processDocument = async (file: File) => {
-  return pdfToText(file)
+  const pdfText = await pdfToText(file)
+ return pdfText
 }
