@@ -1,7 +1,8 @@
-# Tauri + React + Typescript
+# Local mortgage checker
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+After the initial download and set up the app runs completely offline. Users (mortgage brokers) can use the app to analyse client documents for information like:
+- Consistency
+- Loan affordability
+- Employment
+- Etc
 
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
