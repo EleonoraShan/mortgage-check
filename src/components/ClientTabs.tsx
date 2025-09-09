@@ -41,7 +41,7 @@ export const ClientTabs = () => {
   const activeClientData = clients.find(c => c.id === activeClient);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-81px)]">
+    <div className="flex flex-col h-[calc(100vh-81px)] flex-1">
       {/* Client Tabs */}
       <div className="bg-card border-b border-border">
         <div className="flex items-center px-6 py-2 gap-1">
