@@ -18,14 +18,12 @@ export const AnalysisContent = ({ isAnalyzing }: { isAnalyzing: boolean }) => {
 
 
   return (
-
-    <ScrollArea className="h-[500px]">
+    <ScrollArea className="h-full">
       <div className="space-y-3">
         {analysisItems.map((item, index) => (
           <AnalysisItemCard key={index} item={item} />
         ))}
       </div>
-    </ScrollArea >
-
+    </ScrollArea>
   );
 };
