@@ -6,13 +6,16 @@ import { NoFilesOrAnalysis } from './no-files';
 
 
 export const AnalysisContent = ({ isAnalyzing }: { isAnalyzing: boolean }) => {
-  const { files, analysisItems } = useClientContext();
+  const { files, activeDocuments, analysisItems } = useClientContext();
 
   if (isAnalyzing) {
     return <AnalysisLoading />
   }
 
-  if (files.length === 0 || analysisItems.length === 0) {
+  // Check if there's an error item (analysis failed)
+  const hasError = analysisItems.some(item => item.risk_status === 'Insufficient Information' && item.title === 'Analysis Failed');
+
+  if (files.length === 0 || activeDocuments.length === 0 || analysisItems.length === 0 || hasError) {
     return <NoFilesOrAnalysis noFiles={files.length === 0} />
   }
 

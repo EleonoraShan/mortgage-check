@@ -10,6 +10,7 @@ import { getModelName } from '../../config/model-config';
 export const useRunAnalysis = () => {
   const { 
     files, 
+    activeDocuments,
     updateFileAnalysis, 
     name, 
     loanAmount, 
@@ -24,14 +25,23 @@ export const useRunAnalysis = () => {
     try {
       setIsAnalysisRunning(true)
       console.log('Starting analysis with files:', files.length)
+      console.log('Active documents:', activeDocuments)
       
       if (files.length === 0) {
         throw new Error('No documents uploaded. Please upload some documents first.')
       }
 
+      // Filter files to only include active (selected) documents
+      const activeFiles = files.filter(file => activeDocuments.includes(file.id))
+      console.log('Active files for analysis:', activeFiles.length)
+      
+      if (activeFiles.length === 0) {
+        throw new Error('No documents selected for analysis. Please select at least one document.')
+      }
+
       const { results: summaries } = await PromisePool
         .withConcurrency(1)
-        .for(files)
+        .for(activeFiles)
         .process(async (file) => {
           console.log('Processing file:', file.name)
           // only analyse each file once

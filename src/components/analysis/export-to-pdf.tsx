@@ -3,7 +3,6 @@ import { invoke } from '@tauri-apps/api/core';
 import { useClientContext } from '../client-screen';
 import { useToast } from '../ui/use-toast';
 
-
 export const useExportAnalysisToPdf = () => {
   const { 
     name, 
@@ -18,96 +17,132 @@ export const useExportAnalysisToPdf = () => {
   const { toast } = useToast();
 
   const exportToPDF = async () => {
-    const doc = new jsPDF('p', 'pt', 'a4', true)
+    const doc = new jsPDF('p', 'pt', 'a4', true);
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    const margin = 50;
-    const padding = 20;
+    const margin = 40;
+    const contentWidth = pageWidth - (margin * 2);
     let yPosition = margin;
 
-    // Helper function to get risk status color
-    const getRiskColor = (riskStatus: string) => {
-      switch (riskStatus) {
-        case 'Low': return [34, 197, 94]; // Green
-        case 'Medium': return [234, 179, 8]; // Yellow
-        case 'High': return [239, 68, 68]; // Red
-        default: return [107, 114, 128]; // Gray
-      }
+    // Modern color palette - muted tones
+    const colors = {
+      primary: [59, 130, 246], // Muted blue
+      secondary: [107, 114, 128], // Muted gray
+      success: [34, 197, 94], // Muted green
+      warning: [234, 179, 8], // Muted yellow
+      danger: [239, 68, 68], // Muted red
+      info: [107, 114, 128], // Muted gray
+      background: [248, 250, 252], // Light gray
+      cardBackground: [255, 255, 255], // White
+      border: [229, 231, 235], // Light border
+      text: [31, 41, 55], // Dark gray text
+      mutedText: [107, 114, 128] // Muted text
     };
 
-    // Helper function to add a section header
+    // Helper function to draw rounded rectangle
+    const drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number = 8) => {
+      doc.setLineWidth(1);
+      doc.setDrawColor(...colors.border);
+      doc.roundedRect(x, y, width, height, radius, radius, 'S');
+    };
+
+    // Helper function to fill rounded rectangle
+    const fillRoundedRect = (x: number, y: number, width: number, height: number, fillColor: number[], radius: number = 8) => {
+      doc.setFillColor(...fillColor);
+      doc.roundedRect(x, y, width, height, radius, radius, 'F');
+    };
+
+    // Helper function to add centered text
+    const addCenteredText = (text: string, x: number, y: number, fontSize: number, fontStyle: string = 'normal', color: number[] = colors.text) => {
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', fontStyle);
+      doc.setTextColor(...color);
+      const textWidth = doc.getTextWidth(text);
+      doc.text(text, x - (textWidth / 2), y);
+    };
+
+    // Helper function to add section header with rounded background
     const addSectionHeader = (title: string, yPos: number) => {
-      // Background rectangle
-      doc.setFillColor(59, 130, 246); // Blue background
-      doc.rect(margin, yPos - 8, pageWidth - margin * 2, 30, 'F');
+      const sectionHeaderHeight = 35;
+      const radius = 8;
       
-      // Title text with proper wrapping
-      doc.setTextColor(255, 255, 255); // White text
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
+      // Rounded background
+      fillRoundedRect(margin, yPos, contentWidth, sectionHeaderHeight, colors.primary, radius);
       
-      // Split long titles to prevent cutoff
-      const maxTitleWidth = pageWidth - margin * 2 - 30;
-      const titleLines = doc.splitTextToSize(title, maxTitleWidth);
-      doc.text(titleLines, margin + 15, yPos + 8);
+      // Centered title
+      addCenteredText(title, margin + (contentWidth / 2), yPos + 22, 16, 'bold', [255, 255, 255]);
       
-      // Reset text color
-      doc.setTextColor(0, 0, 0);
-      return yPos + 25 + (titleLines.length * 12);
+      return yPos + sectionHeaderHeight + 20;
     };
 
-    // Helper function to add a card-style box
-    const addCard = (content: string[], yPos: number, backgroundColor: number[] = [248, 250, 252]) => {
-      const maxContentWidth = pageWidth - margin * 2 - padding * 2;
-      let totalHeight = padding;
+    // Helper function to add modern card
+    const addModernCard = (content: string[], yPos: number, backgroundColor: number[] = colors.cardBackground) => {
+      const cardPadding = 20;
+      const maxContentWidth = contentWidth - (cardPadding * 2);
+      let totalHeight = cardPadding;
       
-      // Calculate total height needed for all content
+      // Calculate total height needed
       content.forEach(line => {
         const wrappedLines = doc.splitTextToSize(line, maxContentWidth);
-        totalHeight += wrappedLines.length * 14 + 5;
+        totalHeight += wrappedLines.length * 14 + 8;
       });
       
-      const cardHeight = totalHeight + padding;
+      const cardHeight = totalHeight + cardPadding;
       
-      // Card background
-      doc.setFillColor(...backgroundColor);
-      doc.rect(margin, yPos, pageWidth - margin * 2, cardHeight, 'F');
+      // Card background with rounded corners
+      fillRoundedRect(margin, yPos, contentWidth, cardHeight, backgroundColor, 8);
+      drawRoundedRect(margin, yPos, contentWidth, cardHeight, 8);
       
-      // Card border
-      doc.setDrawColor(229, 231, 235);
-      doc.setLineWidth(1);
-      doc.rect(margin, yPos, pageWidth - margin * 2, cardHeight, 'S');
-      
-      // Content with proper wrapping
-      let currentY = yPos + padding + 10;
+      // Content with proper spacing
+      let currentY = yPos + cardPadding + 12;
       content.forEach(line => {
         doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...colors.text);
         const wrappedLines = doc.splitTextToSize(line, maxContentWidth);
-        doc.text(wrappedLines, margin + padding, currentY);
-        currentY += wrappedLines.length * 14 + 5;
+        doc.text(wrappedLines, margin + cardPadding, currentY);
+        currentY += wrappedLines.length * 14 + 8;
       });
       
-      return yPos + cardHeight + padding;
+      return yPos + cardHeight + 15;
     };
 
-    // Header with logo area
-    doc.setFillColor(15, 23, 42); // Dark blue background
-    doc.rect(0, 0, pageWidth, 90, 'F');
+    // Helper function to get risk color
+    const getRiskColor = (riskStatus: string) => {
+      switch (riskStatus) {
+        case 'Low': return colors.success;
+        case 'Medium': return colors.warning;
+        case 'High': return colors.danger;
+        default: return colors.info;
+      }
+    };
+
+    // Helper function to get risk items grouped by level
+    const getRiskGroupedItems = () => {
+      const grouped = {
+        'Low': analysisItems.filter(item => item.risk_status === 'Low'),
+        'Medium': analysisItems.filter(item => item.risk_status === 'Medium'),
+        'High': analysisItems.filter(item => item.risk_status === 'High'),
+        'Insufficient Information': analysisItems.filter(item => item.risk_status === 'Insufficient Information')
+      };
+      return grouped;
+    };
+
+    // Header with modern design
+    fillRoundedRect(0, 0, pageWidth, 100, colors.primary, 0);
     
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
+    doc.setFontSize(28);
     doc.setFont('helvetica', 'bold');
-    doc.text('Valora', margin, 40);
+    addCenteredText('Valora', pageWidth / 2, 45, 28, 'bold', [255, 255, 255]);
     
     doc.setFontSize(14);
     doc.setFont('helvetica', 'normal');
-    doc.text('Mortgage Intelligence Report', margin, 60);
+    addCenteredText('Mortgage Intelligence Report', pageWidth / 2, 70, 14, 'normal', [255, 255, 255]);
     
-    doc.setTextColor(0, 0, 0);
-    yPosition = 110;
+    yPosition = 120;
 
-    // Client Information Section
+    // 1. Client Information Section
     yPosition = addSectionHeader('Client Information', yPosition);
     
     const clientInfo = [
@@ -126,163 +161,179 @@ export const useExportAnalysisToPdf = () => {
       })}`
     ];
     
-    yPosition = addCard(clientInfo, yPosition);
+    yPosition = addModernCard(clientInfo, yPosition);
 
-    // Analysis Results Section
-    yPosition = addSectionHeader('Document Analysis Results', yPosition);
+    // 2. Model Summary Section
+    yPosition = addSectionHeader('Executive Summary', yPosition);
+    
+    const riskGrouped = getRiskGroupedItems();
+    const summaryPoints = [];
+    
+    if (riskGrouped['Low'].length > 0) {
+      summaryPoints.push(`• ${riskGrouped['Low'].length} low-risk finding(s) identified - application shows positive indicators`);
+    }
+    
+    if (riskGrouped['Medium'].length > 0) {
+      summaryPoints.push(`• ${riskGrouped['Medium'].length} medium-risk finding(s) require attention and potential mitigation`);
+    }
+    
+    if (riskGrouped['High'].length > 0) {
+      summaryPoints.push(`• ${riskGrouped['High'].length} high-risk finding(s) need immediate resolution before proceeding`);
+    }
+    
+    if (riskGrouped['Insufficient Information'].length > 0) {
+      summaryPoints.push(`• ${riskGrouped['Insufficient Information'].length} item(s) require additional documentation for complete assessment`);
+    }
 
-    analysisItems.forEach((item, index) => {
-      // Check if we need a new page
-      if (yPosition > pageHeight - 200) {
-        doc.addPage();
-        yPosition = margin;
-      }
+    // Add next steps to summary
+    if (riskGrouped['High'].length > 0) {
+      summaryPoints.push(`• Immediate action required: Address high-risk findings before application submission`);
+    }
+    if (riskGrouped['Insufficient Information'].length > 0) {
+      summaryPoints.push(`• Documentation needed: Request additional information for complete assessment`);
+    }
+    if (riskGrouped['Medium'].length > 0) {
+      summaryPoints.push(`• Review recommended: Evaluate medium-risk items for potential mitigation strategies`);
+    }
+    if (riskGrouped['Low'].length > 0 && riskGrouped['High'].length === 0) {
+      summaryPoints.push(`• Application ready: Positive indicators support proceeding with submission`);
+    }
+    
+    yPosition = addModernCard(summaryPoints, yPosition, [240, 248, 255]);
 
-      // Risk status badge
-      const riskColor = getRiskColor(item.risk_status);
-      doc.setFillColor(...riskColor);
-      doc.rect(margin, yPosition, 80, 20, 'F');
-      
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text(item.risk_status.toUpperCase(), margin + 5, yPosition + 13);
-      
-      doc.setTextColor(0, 0, 0);
-      
-      // Title with proper wrapping
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      const titleText = `${index + 1}. ${item.title}`;
-      const maxTitleWidth = pageWidth - margin * 2 - 100;
-      const titleLines = doc.splitTextToSize(titleText, maxTitleWidth);
-      doc.text(titleLines, margin + 90, yPosition + 13);
-      yPosition += 25 + (titleLines.length * 12);
-
-      // Description box with proper wrapping
-      const maxDescWidth = pageWidth - margin * 2 - padding * 2;
-      const descriptionLines = doc.splitTextToSize(item.explanation, maxDescWidth);
-      const descriptionHeight = descriptionLines.length * 12 + padding * 2;
-      
-      doc.setFillColor(249, 250, 251);
-      doc.rect(margin + padding, yPosition, pageWidth - margin * 2 - padding * 2, descriptionHeight, 'F');
-      doc.setDrawColor(229, 231, 235);
-      doc.rect(margin + padding, yPosition, pageWidth - margin * 2 - padding * 2, descriptionHeight, 'S');
-      
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'normal');
-      doc.text(descriptionLines, margin + padding * 2, yPosition + padding + 8);
-      
-      yPosition += descriptionHeight + padding;
-    });
-
-    // Summary section
-    if (yPosition > pageHeight - 200) {
+    // 3. Analysis Statistics Cards
+    yPosition = addSectionHeader('Risk Assessment Overview', yPosition);
+    
+    // Check if we have enough space for the header AND the statistics cards
+    const cardWidth = (contentWidth - 20) / 2;
+    const cardHeight = 80;
+    const cardSpacing = 20;
+    const riskAssessmentHeaderHeight = 35 + 20; // Section header height + margin
+    const totalStatsHeight = riskAssessmentHeaderHeight + (cardHeight * 2) + cardSpacing + 30; // Header + two rows + spacing + margin
+    
+    if (yPosition + totalStatsHeight > pageHeight - 100) {
       doc.addPage();
       yPosition = margin;
     }
-
-    yPosition = addSectionHeader('Analysis Summary', yPosition);
-
-    const successCount = analysisItems.filter(a => a.risk_status === 'Low').length;
-    const mediumCount = analysisItems.filter(a => a.risk_status === 'Medium').length;
-    const highCount = analysisItems.filter(a => a.risk_status === 'High').length;
-    const uncertainCount = analysisItems.filter(a => a.risk_status === 'Insufficient Information').length;
-
-    // Summary cards in a grid layout with proper spacing
-    const cardWidth = (pageWidth - margin * 3) / 2;
-    const cardHeight = 70;
-    const cardSpacing = 15;
     
     // Low Risk Card
-    doc.setFillColor(34, 197, 94);
-    doc.rect(margin, yPosition, cardWidth, cardHeight, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('LOW RISK', margin + padding, yPosition + 20);
-    doc.setFontSize(20);
-    doc.text(successCount.toString(), margin + padding, yPosition + 50);
+    fillRoundedRect(margin, yPosition, cardWidth, cardHeight, colors.success, 8);
+    addCenteredText('LOW RISK', margin + (cardWidth / 2), yPosition + 25, 12, 'bold', [255, 255, 255]);
+    addCenteredText(riskGrouped['Low'].length.toString(), margin + (cardWidth / 2), yPosition + 55, 24, 'bold', [255, 255, 255]);
     
     // Medium Risk Card
-    doc.setFillColor(234, 179, 8);
-    doc.rect(margin + cardWidth + cardSpacing, yPosition, cardWidth, cardHeight, 'F');
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('MEDIUM RISK', margin + cardWidth + cardSpacing + padding, yPosition + 20);
-    doc.setFontSize(20);
-    doc.text(mediumCount.toString(), margin + cardWidth + cardSpacing + padding, yPosition + 50);
+    fillRoundedRect(margin + cardWidth + cardSpacing, yPosition, cardWidth, cardHeight, colors.warning, 8);
+    addCenteredText('MEDIUM RISK', margin + cardWidth + cardSpacing + (cardWidth / 2), yPosition + 25, 12, 'bold', [0, 0, 0]);
+    addCenteredText(riskGrouped['Medium'].length.toString(), margin + cardWidth + cardSpacing + (cardWidth / 2), yPosition + 55, 24, 'bold', [0, 0, 0]);
     
     yPosition += cardHeight + cardSpacing;
     
     // High Risk Card
-    doc.setFillColor(239, 68, 68);
-    doc.rect(margin, yPosition, cardWidth, cardHeight, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('HIGH RISK', margin + padding, yPosition + 20);
-    doc.setFontSize(20);
-    doc.text(highCount.toString(), margin + padding, yPosition + 50);
+    fillRoundedRect(margin, yPosition, cardWidth, cardHeight, colors.danger, 8);
+    addCenteredText('HIGH RISK', margin + (cardWidth / 2), yPosition + 25, 12, 'bold', [255, 255, 255]);
+    addCenteredText(riskGrouped['High'].length.toString(), margin + (cardWidth / 2), yPosition + 55, 24, 'bold', [255, 255, 255]);
     
     // Insufficient Info Card
-    doc.setFillColor(107, 114, 128);
-    doc.rect(margin + cardWidth + cardSpacing, yPosition, cardWidth, cardHeight, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('INSUFFICIENT INFO', margin + cardWidth + cardSpacing + padding, yPosition + 20);
-    doc.setFontSize(20);
-    doc.text(uncertainCount.toString(), margin + cardWidth + cardSpacing + padding, yPosition + 50);
+    fillRoundedRect(margin + cardWidth + cardSpacing, yPosition, cardWidth, cardHeight, colors.info, 8);
+    addCenteredText('INSUFFICIENT INFO', margin + cardWidth + cardSpacing + (cardWidth / 2), yPosition + 25, 12, 'bold', [255, 255, 255]);
+    addCenteredText(riskGrouped['Insufficient Information'].length.toString(), margin + cardWidth + cardSpacing + (cardWidth / 2), yPosition + 55, 24, 'bold', [255, 255, 255]);
 
-    yPosition += cardHeight + padding * 2;
+    yPosition += cardHeight + 30;
 
-    // Next Steps Section
-    if (yPosition > pageHeight - 200) {
+    // 4. Detailed Analysis by Risk Level
+    // Check if we have enough space for the header
+    const detailedAnalysisHeaderHeight = 35 + 20; // Section header height + margin
+    if (yPosition + detailedAnalysisHeaderHeight > pageHeight - 100) {
       doc.addPage();
       yPosition = margin;
     }
+    
+    yPosition = addSectionHeader('Detailed Analysis', yPosition);
 
-    yPosition = addSectionHeader('Recommended Next Steps', yPosition);
+    // Process each risk level in order: Low, Medium, High, Insufficient Information
+    const riskOrder = ['Low', 'Medium', 'High', 'Insufficient Information'];
+    
+    riskOrder.forEach(riskLevel => {
+      const items = riskGrouped[riskLevel as keyof typeof riskGrouped];
+      
+      if (items.length > 0) {
+        // Individual findings (no subheading, just process items directly)
+        items.forEach((item, index) => {
+          // Calculate card height first
+          const cardPadding = 15;
+          const maxContentWidth = contentWidth - (cardPadding * 2);
+          
+          // Calculate badge width based on text length
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'bold');
+          const badgeText = item.risk_status.toUpperCase();
+          const badgeTextWidth = doc.getTextWidth(badgeText);
+          const badgeWidth = Math.max(badgeTextWidth + 16, 100); // Add padding, minimum 100px
+          const badgeHeight = 22;
+          
+          // Title
+          doc.setFontSize(13);
+          doc.setFont('helvetica', 'bold');
+          const titleText = `${index + 1}. ${item.title}`;
+          const titleMaxWidth = maxContentWidth - badgeWidth - 15; // Leave space for badge
+          const titleLines = doc.splitTextToSize(titleText, titleMaxWidth);
+          const titleHeight = titleLines.length * 15;
+          
+          // Description
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'normal');
+          const descriptionLines = doc.splitTextToSize(item.explanation, maxContentWidth);
+          const descriptionHeight = descriptionLines.length * 13;
+          
+          const totalCardHeight = Math.max(titleHeight + descriptionHeight + (cardPadding * 2) + 10, badgeHeight + (cardPadding * 2));
+          
+          // Check if we need a new page for this card
+          if (yPosition + totalCardHeight > pageHeight - 100) {
+            doc.addPage();
+            yPosition = margin;
+          }
 
-    // Generate next steps based on analysis
-    const nextSteps = [];
-    
-    if (uncertainCount > 0) {
-      nextSteps.push(`• Request additional documentation for ${uncertainCount} item(s) marked as "Insufficient Information"`);
-    }
-    
-    if (highCount > 0) {
-      nextSteps.push(`• Address ${highCount} high-risk finding(s) before proceeding with application`);
-    }
-    
-    if (mediumCount > 0) {
-      nextSteps.push(`• Review and potentially mitigate ${mediumCount} medium-risk finding(s)`);
-    }
-    
-    if (successCount > 0) {
-      nextSteps.push(`• ${successCount} positive finding(s) support the application`);
-    }
-
-    // Add standard next steps
-    nextSteps.push('• Schedule follow-up meeting with client to discuss findings');
-    nextSteps.push('• Prepare application package for lender submission');
-    nextSteps.push('• Consider additional documentation if required by specific lender criteria');
-    
-    if (nextSteps.length === 0) {
-      nextSteps.push('• No specific actions required based on current analysis');
-    }
-
-    yPosition = addCard(nextSteps, yPosition, [240, 248, 255]); // Light blue background
+          // Card background
+          fillRoundedRect(margin, yPosition, contentWidth, totalCardHeight, colors.cardBackground, 8);
+          drawRoundedRect(margin, yPosition, contentWidth, totalCardHeight, 8);
+          
+          // Risk status badge (positioned on the right side)
+          const riskColor = getRiskColor(item.risk_status);
+          const badgeX = margin + contentWidth - cardPadding - badgeWidth;
+          fillRoundedRect(badgeX, yPosition + cardPadding, badgeWidth, badgeHeight, riskColor, 4);
+          
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'bold');
+          doc.text(badgeText, badgeX + (badgeWidth / 2), yPosition + cardPadding + 14, { align: 'center' });
+          
+          // Title (positioned on the left, with space for badge)
+          doc.setFontSize(13);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(...colors.text);
+          doc.text(titleLines, margin + cardPadding, yPosition + cardPadding + 12);
+          
+          // Description
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(...colors.mutedText);
+          doc.text(descriptionLines, margin + cardPadding, yPosition + cardPadding + titleHeight + 20);
+          
+          yPosition += totalCardHeight + 15;
+        });
+      }
+    });
 
     // Footer
     const footerY = pageHeight - 30;
-    doc.setTextColor(107, 114, 128);
+    doc.setTextColor(...colors.mutedText);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('Generated by Valora - Mortgage Intelligence Platform', margin, footerY);
-    doc.text(`Page ${doc.getCurrentPageInfo().pageNumber}`, pageWidth - margin - 50, footerY);
+    addCenteredText('Generated by Valora - Mortgage Intelligence Platform', pageWidth / 2, footerY, 10, 'normal', colors.mutedText);
+    
+    // Page numbers
+    const pageInfo = doc.getCurrentPageInfo();
+    doc.text(`Page ${pageInfo.pageNumber}`, pageWidth - margin - 30, footerY);
 
     // Generate PDF data
     const pdfData = doc.output('arraybuffer');
@@ -313,6 +364,4 @@ export const useExportAnalysisToPdf = () => {
   }
 
   return { exportToPDF }
-
 };
-

@@ -5,6 +5,8 @@ import { Toaster as Sonner } from "../src/components/ui/sonner";
 import { Toaster } from "../src/components/ui/toaster";
 import { TooltipProvider } from "../src/components/ui/tooltip";
 import { initializeOllama } from "./initialise-model";
+import { useOllamaHealth } from "./hooks/use-ollama-health";
+import { OllamaErrorScreen } from "./components/OllamaErrorScreen";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -14,6 +16,9 @@ const App = () => {
   const [isAppLoading, setIsAppLoading] = useState(false)
   const [isAppReady, setIsAppReady] = useState(false)
   const [errorLoadingApp, setErrorLoadingApp] = useState<string | null>(null)
+  
+  // Use Ollama health check
+  const { isConnected, isLoading: isHealthLoading, retry } = useOllamaHealth()
   
   useEffect(() => {
     console.log('App useEffect running...')
@@ -45,7 +50,20 @@ const App = () => {
     }
   }, [])
   
-  console.log('App render - isAppLoading:', isAppLoading, 'isAppReady:', isAppReady, 'error:', errorLoadingApp)
+  console.log('App render - isAppLoading:', isAppLoading, 'isAppReady:', isAppReady, 'error:', errorLoadingApp, 'isConnected:', isConnected, 'isHealthLoading:', isHealthLoading)
+  
+  // Show Ollama error screen if not connected and not loading
+  if (isAppReady && !isHealthLoading && !isConnected) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <OllamaErrorScreen onRetry={retry} isRetrying={isHealthLoading} />
+        </TooltipProvider>
+      </QueryClientProvider>
+    )
+  }
   
   return <QueryClientProvider client={queryClient}>
     <TooltipProvider>
