@@ -26,9 +26,10 @@ function chunkText(text: string, chunkSize = 4000) {
 // 2.5  Prompt template (JSON‑output)
 const PROMPT_TEMPLATE = `
 You are a UK mortgage‑broker assistant.  
-Read the following excerpt from a client’s documentation and produce a **structured summary** in jsons format.  
+Read the following excerpt from a client's documentation and produce a **structured summary** in jsons format.  
 The JSON must contain an analysis item which is an array of assessments where the title if the item being analysed, risk_status should be one of Low, Medium, High, Insufficient Information
 and explanation the reason for analysis. The JSON can optionally contain notes.
+If the document appears to be irrelevant to mortgage applications (e.g., recipes, shopping lists, unrelated content), assess it as "Insufficient Information" with an explanation noting the document's irrelevance.
 
 {analysis: {
   title: "", risk_status: "", explanation: ""

@@ -10,16 +10,16 @@ export const DocumentManager = () => {
   const { files } = useClientContext();
 
   return (
-    <Card className="p-6 flex flex-col flex-1">
+    <Card className="p-4 sm:p-6 flex flex-col flex-1">
       <UploadFiles />
 
-      <ScrollArea className="min-h-[400px]">
+      <ScrollArea className="min-h-[300px] sm:min-h-[400px]">
         <div className="space-y-2">
           {files.length === 0 ? (
             <DocumentEmptyState />
           ) : (
             files.map((doc) => (
-              <DocumentPreview doc={doc} />
+              <DocumentPreview key={doc.id} doc={doc} />
             ))
           )}
         </div>

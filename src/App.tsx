@@ -14,10 +14,39 @@ const App = () => {
   const [isAppLoading, setIsAppLoading] = useState(false)
   const [isAppReady, setIsAppReady] = useState(false)
   const [errorLoadingApp, setErrorLoadingApp] = useState<string | null>(null)
+  
   useEffect(() => {
-    setIsAppLoading(true)
-    initializeOllama().then(() => { setIsAppReady(true) }).catch((e) => setErrorLoadingApp(JSON.stringify(e))).finally(() => setIsAppLoading(false))
+    console.log('App useEffect running...')
+    
+    // Start a timer to show loading after 1 second
+    const loadingTimer = setTimeout(() => {
+      setIsAppLoading(true)
+    }, 1000)
+    
+    initializeOllama().then((success) => { 
+      console.log('Ollama init result:', success)
+      setIsAppReady(true)
+      if (!success) {
+        setErrorLoadingApp("Ollama initialization failed, but app will continue to work")
+      }
+    }).catch((e) => {
+      console.error('Ollama init error:', e)
+      setErrorLoadingApp(JSON.stringify(e))
+      setIsAppReady(true) // Still show the app even if Ollama fails
+    }).finally(() => {
+      console.log('Ollama init finished, setting loading to false')
+      clearTimeout(loadingTimer) // Clear the timer if Ollama finishes before 1 second
+      setIsAppLoading(false)
+    })
+    
+    // Cleanup function to clear timer if component unmounts
+    return () => {
+      clearTimeout(loadingTimer)
+    }
   }, [])
+  
+  console.log('App render - isAppLoading:', isAppLoading, 'isAppReady:', isAppReady, 'error:', errorLoadingApp)
+  
   return <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />

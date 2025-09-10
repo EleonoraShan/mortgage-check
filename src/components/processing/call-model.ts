@@ -7,10 +7,11 @@
 // };
 
 import { fetch } from '@tauri-apps/plugin-http';
+import { getModelName } from '../../config/model-config';
 
 
 export const ask = async (prompt: string) => {
-  const payload = { model: 'gpt-oss:20b', 
+  const payload = { model: getModelName(), 
     stream: false,
     messages: [
       {

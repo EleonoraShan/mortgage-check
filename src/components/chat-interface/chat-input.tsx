@@ -5,6 +5,7 @@ import { useClientContext } from '../client-screen';
 import { Message } from '../client-screen/client-provider';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { getModelName } from '../../config/model-config';
 
 
 export const ChatInput = ({ isLoading, setIsLoading }: { isLoading: boolean, setIsLoading: React.Dispatch<React.SetStateAction<boolean>> }) => {
@@ -27,7 +28,7 @@ export const ChatInput = ({ isLoading, setIsLoading }: { isLoading: boolean, set
     setIsLoading(true);
 
     const response = await ollama.chat({
-      model: 'gpt-oss:20b',
+      model: getModelName(),
       messages: chatMessages,
     })
     const responseString = response.message.content;

@@ -1,0 +1,39 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- High-resolution Valora icon for app icons -->
+  
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle with subtle shadow -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGradient)" stroke="none"/>
+  <circle cx="256" cy="256" r="220" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+  
+  <!-- Abstract "V" shape with modern geometric elements -->
+  <!-- Left side of V -->
+  <path d="M152 152 L256 360 L200 360 L152 280 Z" fill="white" opacity="0.95"/>
+  
+  <!-- Right side of V -->
+  <path d="M360 152 L256 360 L312 360 L360 280 Z" fill="white" opacity="0.95"/>
+  
+  <!-- Central accent element representing analysis/data -->
+  <rect x="240" y="200" width="32" height="80" rx="16" fill="url(#accentGradient)"/>
+  
+  <!-- Data points representing analytics -->
+  <circle cx="180" cy="220" r="12" fill="url(#accentGradient)" opacity="0.9"/>
+  <circle cx="332" cy="220" r="12" fill="url(#accentGradient)" opacity="0.9"/>
+  <circle cx="180" cy="280" r="8" fill="url(#accentGradient)" opacity="0.7"/>
+  <circle cx="332" cy="280" r="8" fill="url(#accentGradient)" opacity="0.7"/>
+  <circle cx="180" cy="320" r="6" fill="url(#accentGradient)" opacity="0.5"/>
+  <circle cx="332" cy="320" r="6" fill="url(#accentGradient)" opacity="0.5"/>
+  
+  <!-- Subtle inner glow -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+</svg>

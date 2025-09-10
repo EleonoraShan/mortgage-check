@@ -6,26 +6,26 @@ import { AnalysisItemI } from './analysis.interfaces';
 const getIcon = (type: string) => {
   switch (type) {
     case 'Low':
-      return <CheckCircle className="h-4 w-4 text-success" />;
+      return <CheckCircle className="h-4 w-4 text-green-600" />;
     case 'Medium':
-      return <AlertTriangle className="h-4 w-4 text-destructive" />;
+      return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
     case 'High':
-      return <AlertTriangle className="h-4 w-4 text-warning" />;
+      return <AlertTriangle className="h-4 w-4 text-red-600" />;
     default:
-      return <Ghost className="h-4 w-4 text-disabled" />;
+      return <Ghost className="h-4 w-4 text-gray-500" />;
   }
 };
 
 const getBadgeVariant = (type: string) => {
   switch (type) {
     case 'Low':
-      return 'default';
+      return 'default'; // Green
     case 'Medium':
-      return 'destructive';
+      return 'warning'; // Yellow
     case 'High':
-      return 'secondary';
+      return 'destructive'; // Red
     default:
-      return 'default';
+      return 'outline'; // Gray
   }
 };
 

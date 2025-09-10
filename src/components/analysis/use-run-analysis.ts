@@ -5,46 +5,117 @@ import { useClientContext } from '../client-screen';
 import { summarisePdf } from '../processing';
 import { getOverallAnalysisPrompt } from '../processing/analysis-across-documents-template';
 import { parseOllamaJson } from '../processing/parse-ollama-json';
+import { getModelName } from '../../config/model-config';
 
 export const useRunAnalysis = () => {
-  const { files, updateFileAnalysis, name, loanAmount } = useClientContext();
+  const { 
+    files, 
+    updateFileAnalysis, 
+    name, 
+    loanAmount, 
+    depositAmount, 
+    employmentStatus, 
+    currentRole, 
+    company, 
+    propertyType 
+  } = useClientContext();
   const [isAnalysisRunning, setIsAnalysisRunning] = useState(false)
   const runAnalysis = async () => {
-    setIsAnalysisRunning(true)
-    const { results: summaries } = await PromisePool
-      .withConcurrency(1)
-      .for(files)
-      .process(async (file) => {
-        // only analyse each file once
-        if (file.fileAnalysisSummaryJson) {
-          return file.fileAnalysisSummaryJson
-        }
-        const summary = await summarisePdf(file.fileText)
-        
-        updateFileAnalysis(file.id, JSON.stringify(summary))
-        
-        return summary
+    try {
+      setIsAnalysisRunning(true)
+      console.log('Starting analysis with files:', files.length)
+      
+      if (files.length === 0) {
+        throw new Error('No documents uploaded. Please upload some documents first.')
+      }
+
+      const { results: summaries } = await PromisePool
+        .withConcurrency(1)
+        .for(files)
+        .process(async (file) => {
+          console.log('Processing file:', file.name)
+          // only analyse each file once
+          if (file.fileAnalysisSummaryJson) {
+            console.log('Using cached analysis for:', file.name)
+            return file.fileAnalysisSummaryJson
+          }
+          const summary = await summarisePdf(file.fileText)
+          
+          updateFileAnalysis(file.id, JSON.stringify(summary))
+          
+          return summary
+        })
+
+      console.log('Document summaries completed:', summaries)
+      
+      // Filter out placeholder values for analysis
+      const clientData = {
+        name, 
+        loanAmount, 
+        depositAmount, 
+        employmentStatus: employmentStatus === 'Select employment status' ? 'Not specified' : employmentStatus,
+        currentRole: currentRole === 'Type information here' ? 'Not specified' : currentRole,
+        company: company === 'Type information here' ? 'Not specified' : company,
+        propertyType: propertyType === 'Select property type' ? 'Not specified' : propertyType
+      };
+
+      console.log('Client data:', clientData)
+      console.log('Calling Ollama with model:', getModelName())
+      
+      // Test Ollama connection first
+      try {
+        console.log('Testing Ollama connection...')
+        const testResponse = await ollama.chat({
+          model: getModelName(),
+          stream: false,
+          messages: [{ role: "user", content: "Hello, respond with just 'OK'" }]
+        })
+        console.log('Ollama connection test successful:', testResponse)
+      } catch (testError) {
+        console.error('Ollama connection test failed:', testError)
+        throw new Error(`Cannot connect to Ollama: ${testError}`)
+      }
+      
+      const prompt = getOverallAnalysisPrompt(JSON.stringify(summaries), JSON.stringify(clientData))
+      console.log('Analysis prompt:', prompt)
+
+      const response = await ollama.chat({
+        model: getModelName(), 
+        stream: false,
+        messages: [
+          {
+            role: "system",
+            content: prompt
+          }
+        ],
       })
 
-    console.log({ summaries })
-    const response = await ollama.chat({
-      model: 'gpt-oss:20b', 
-      stream: false,
-      messages: [
-        {
-          role: "system",
-          content: getOverallAnalysisPrompt(JSON.stringify(summaries), JSON.stringify({ name, loanAmount }))
-        }
-      ],
-    })
+      console.log('Ollama response:', response)
+      console.log('Raw response content:', response.message.content)
 
-    setIsAnalysisRunning(false)
+      const parsedData = parseOllamaJson(response.message.content)
 
-    const parsedData = parseOllamaJson(response.message.content)
-
-    console.log({response})
-    console.log({parsedData})
-    return parsedData
+      console.log('Parsed analysis data:', parsedData)
+      
+      // If parsing failed or returned empty, create a fallback analysis
+      if (!parsedData || (Array.isArray(parsedData) && parsedData.length === 0)) {
+        console.log('Creating fallback analysis due to parsing issues')
+        const fallbackAnalysis = [{
+          title: "Analysis Completed",
+          risk_status: "Medium",
+          explanation: "Document analysis completed. The AI model response could not be parsed as structured data, but the documents were processed successfully."
+        }]
+        setIsAnalysisRunning(false)
+        return fallbackAnalysis
+      }
+      
+      setIsAnalysisRunning(false)
+      return parsedData
+    } catch (error) {
+      console.error('Analysis failed:', error)
+      setIsAnalysisRunning(false)
+      throw error
+    }
   }
 
   return {
