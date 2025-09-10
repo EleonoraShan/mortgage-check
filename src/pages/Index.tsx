@@ -27,11 +27,6 @@ const Index = ({ isAppReady, isAppLoading }: { isAppReady: boolean, isAppLoading
           </main>
         </>
       )}
-      {!isAppReady && !isAppLoading && (
-        <div className="flex-1 flex items-center justify-center">
-          <p>App not ready yet...</p>
-        </div>
-      )}
     </div>
   );
 };
