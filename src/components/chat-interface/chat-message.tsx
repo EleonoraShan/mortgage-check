@@ -1,5 +1,5 @@
 import { Bot, User } from 'lucide-react';
-import { Message } from '../client-screen/client-provider';
+import { Message } from '../../lib/persistence';
 import { Avatar } from '../ui/avatar';
 
 

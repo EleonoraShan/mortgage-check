@@ -1,5 +1,4 @@
 import { AlertTriangle, CheckCircle, Ghost } from 'lucide-react';
-import { Badge } from '../ui/badge';
 import { AnalysisItemI } from './analysis.interfaces';
 
 
