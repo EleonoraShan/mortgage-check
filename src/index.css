@@ -17,16 +17,16 @@
 
     --primary: 150, 100%, 41%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 150, 100%, 41%
+    --primary-hover: 150, 56%, 57%;
 
-    --secondary: 214 32% 91%;
+    --secondary: 146, 21%, 87%
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 214 32% 91%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 212 100% 95%;
-    --accent-foreground: 212 100% 25%;
+    --accent: 146, 21%, 87%;
+    --accent-foreground: 150, 100%, 11%;
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
