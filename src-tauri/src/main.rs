@@ -9,8 +9,6 @@ use std::path::PathBuf;
 use std::fs;
 use tauri_plugin_dialog::DialogExt;
 
-// Model Configuration - Change this to switch models easily
-// Available models: 'gemma3:1b', 'gpt-oss:20b', 'llama3.2:3b', 'qwen2.5:3b'
 const MODEL_NAME: &str = "gpt-oss:20b";
 
 #[derive(Default)]
