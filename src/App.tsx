@@ -4,56 +4,55 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "../src/components/ui/sonner";
 import { Toaster } from "../src/components/ui/toaster";
 import { TooltipProvider } from "../src/components/ui/tooltip";
-import { initializeOllama } from "./initialise-model";
-import { useOllamaHealth } from "./hooks/use-ollama-health";
 import { OllamaErrorScreen } from "./components/OllamaErrorScreen";
+import { SplashScreen } from "./components/SplashScreen";
+import { useOllamaHealth } from "./hooks/use-ollama-health";
+import { initializeOllama } from "./initialise-model";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => {
+  const [showSplashScreen, setShowSplashScreen] = useState(true)
   const [isAppLoading, setIsAppLoading] = useState(false)
-  const [isAppReady, setIsAppReady] = useState(false)
-  const [errorLoadingApp, setErrorLoadingApp] = useState<string | null>(null)
-  
+  const [isError, setIsError] = useState(false)
+
   // Use Ollama health check
   const { isConnected, isLoading: isHealthLoading, retry } = useOllamaHealth()
-  
+
+  // Hide splash after 5 seconds if Ollama is not initialised by then
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setShowSplashScreen(false);
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   useEffect(() => {
     console.log('App useEffect running...')
-    
-    // Start a timer to show loading after 1 second
-    const loadingTimer = setTimeout(() => {
-      setIsAppLoading(true)
-    }, 1000)
-    
-    initializeOllama().then((success) => { 
+
+    initializeOllama().then((success) => {
       console.log('Ollama init result:', success)
-      setIsAppReady(true)
       if (!success) {
-        setErrorLoadingApp("Ollama initialization failed, but app will continue to work")
+        setIsError(true)
       }
     }).catch((e) => {
       console.error('Ollama init error:', e)
-      setErrorLoadingApp(JSON.stringify(e))
-      setIsAppReady(true) // Still show the app even if Ollama fails
+      setIsError(true)
     }).finally(() => {
       console.log('Ollama init finished, setting loading to false')
-      clearTimeout(loadingTimer) // Clear the timer if Ollama finishes before 1 second
       setIsAppLoading(false)
+      setShowSplashScreen(false)
     })
-    
-    // Cleanup function to clear timer if component unmounts
-    return () => {
-      clearTimeout(loadingTimer)
-    }
+
   }, [])
-  
-  console.log('App render - isAppLoading:', isAppLoading, 'isAppReady:', isAppReady, 'error:', errorLoadingApp, 'isConnected:', isConnected, 'isHealthLoading:', isHealthLoading)
-  
-  // Show Ollama error screen if not connected and not loading
-  if (isAppReady && !isHealthLoading && !isConnected) {
+
+  console.log('App render - isAppLoading:', isAppLoading, 'isConnected:', isConnected, 'isHealthLoading:', isHealthLoading)
+
+  // Show Ollama error screen if there was an error connecting the model
+  if (isError) {
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
@@ -64,14 +63,15 @@ const App = () => {
       </QueryClientProvider>
     )
   }
-  
+
   return <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      {showSplashScreen && <SplashScreen />}
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={errorLoadingApp ? <p>{errorLoadingApp}</p> : <Index isAppReady={isAppReady} isAppLoading={isAppLoading} />} />
+          <Route path="/" element={<Index isAppReady={!isAppLoading && !isError} isAppLoading={isAppLoading} />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

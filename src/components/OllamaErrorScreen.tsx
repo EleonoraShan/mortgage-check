@@ -17,7 +17,7 @@ export const OllamaErrorScreen = ({ onRetry, isRetrying = false }: OllamaErrorSc
             Ollama Connection Failed
           </h1>
           <p className="text-muted-foreground text-lg">
-            Valora requires Ollama to be running for document analysis and AI features.
+          Lendomus requires Ollama to be running for document analysis and AI features.
           </p>
         </div>
 
