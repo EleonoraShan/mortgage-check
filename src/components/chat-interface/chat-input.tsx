@@ -2,7 +2,7 @@ import { Send } from 'lucide-react';
 import ollama from 'ollama/browser'
 import { useState } from 'react';
 import { useClientContext } from '../client-screen';
-import { Message } from '../client-screen/client-provider';
+import { Message } from '../../lib/persistence';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { getModelName } from '../../config/model-config';

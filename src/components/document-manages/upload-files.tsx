@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import { processDocument } from '../../lib/process-pdf';
 import { useClientContext } from '../client-screen';
-import { Message } from '../client-screen/client-provider';
+import { Message } from '../../lib/persistence';
 import { Button } from '../ui/button';
 
 

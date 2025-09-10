@@ -59,10 +59,9 @@ export const AnalysisResults = () => {
       console.error('Analysis failed:', error)
       // Set a simple error result to show the user what happened
       setAnalysisItems([{
-        type: 'error',
+        risk_status: 'Insufficient Information',
         title: 'Analysis Failed',
-        description: error instanceof Error ? error.message : 'Unknown error occurred during analysis',
-        document: 'System'
+        explanation: error instanceof Error ? error.message : 'Unknown error occurred during analysis'
       }])
     }
   }

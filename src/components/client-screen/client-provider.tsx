@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useState, useEffect } from 'react';
 import { AnalysisItemI } from '../analysis/analysis.interfaces';
+import { ClientDataI } from './client.interfaces';
 import { 
   saveClientSessionToStorage, 
   loadClientSessionFromStorage, 

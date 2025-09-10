@@ -3,9 +3,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
+import { TooltipProvider } from '../components/ui/tooltip';
 import { ClientContextProvider } from './client-screen/client-provider';
 import { ClientWorkspace } from './client-workspace/ClientWorkspace';
 import { ClientDataI, ClientStatus } from './client-screen/client.interfaces';
@@ -41,10 +40,10 @@ export const ClientTabs = () => {
         name: 'John Smith',
         loanAmount: 350000,
         depositAmount: 50000,
-        employmentStatus: 'Select employment status',
+        employmentStatus: 'Employed (PAYE)',
         currentRole: 'Type information here',
         company: 'Type information here',
-        propertyType: 'Select property type',
+        propertyType: 'First-time buyer',
         status: 'Under review'
       };
       setClients([defaultClient]);
@@ -76,10 +75,10 @@ export const ClientTabs = () => {
         name: newClientName.trim(),
         loanAmount: 300000,
         depositAmount: 30000,
-        employmentStatus: 'Select employment status',
+        employmentStatus: 'Employed (PAYE)',
         currentRole: 'Type information here',
         company: 'Type information here',
-        propertyType: 'Select property type',
+        propertyType: 'First-time buyer',
         status: 'Under review'
       };
       setClients([...clients, newClient]);
