@@ -18,13 +18,13 @@ export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
                 alt="Lendomus"
                 className="h-16 w-auto mx-auto"
               />
-              <h1 className="text-4xl sm:text-5xl font-bold text-foreground">
+              <h1 className="text-xl sm:text-4xl font-bold text-foreground">
                 Welcome to Lendomus
               </h1>
             </div>
 
             {/* Main Description */}
-            <div className="space-y-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
+            <div className="space-y-6 text-m sm:text-m text-muted-foreground leading-relaxed bg-secondary">
               <p>
                 Lendomus helps mortgage brokers speed up client document checks.
               </p>
