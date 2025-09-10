@@ -1,6 +1,6 @@
 // Model Configuration
 // Change this to switch between models easily
-m// Available models:
+// Available models:
 // - 'gemma3:1b' (smaller, faster, good for testing)
 // - 'gpt-oss:20b' (larger, more capable, production)
 
