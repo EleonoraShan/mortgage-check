@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
 import ollama from 'ollama/browser';
+import { useCallback, useEffect, useState } from 'react';
 import { getModelName } from '../config/model-config';
 
 interface OllamaHealthState {
@@ -60,7 +60,7 @@ export const useOllamaHealth = () => {
       if (!healthState.isLoading) {
         checkOllamaHealth();
       }
-    }, 300000);
+    }, 3000000);
 
     return () => clearInterval(interval);
   }, [checkOllamaHealth, healthState.isLoading]);

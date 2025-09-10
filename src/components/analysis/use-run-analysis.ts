@@ -1,11 +1,11 @@
 import { PromisePool } from '@supercharge/promise-pool';
 import ollama from 'ollama/browser';
 import { useState } from "react";
+import { getModelName } from '../../config/model-config';
 import { useClientContext } from '../client-screen';
 import { summarisePdf } from '../processing';
 import { getOverallAnalysisPrompt } from '../processing/analysis-across-documents-template';
 import { parseOllamaJson } from '../processing/parse-ollama-json';
-import { getModelName } from '../../config/model-config';
 
 export const useRunAnalysis = () => {
   const { 
@@ -72,19 +72,6 @@ export const useRunAnalysis = () => {
       console.log('Client data:', clientData)
       console.log('Calling Ollama with model:', getModelName())
       
-      // Test Ollama connection first
-      try {
-        console.log('Testing Ollama connection...')
-        const testResponse = await ollama.chat({
-          model: getModelName(),
-          stream: false,
-          messages: [{ role: "user", content: "Hello, respond with just 'OK'" }]
-        })
-        console.log('Ollama connection test successful:', testResponse)
-      } catch (testError) {
-        console.error('Ollama connection test failed:', testError)
-        throw new Error(`Cannot connect to Ollama: ${testError}`)
-      }
       
       const prompt = getOverallAnalysisPrompt(JSON.stringify(summaries), JSON.stringify(clientData))
       console.log('Analysis prompt:', prompt)
