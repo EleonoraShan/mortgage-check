@@ -107,12 +107,9 @@ export const ClientTabs = () => {
   };
 
   const getStatusBadgeVariant = (status: ClientStatus, isActive: boolean) => {
-    if (isActive) {
-      return 'outline'
-    }
     switch (status) {
       case 'Approved':
-        return 'default'; // Green
+        return isActive ? 'outline' : 'default'; // Green
       case 'Under review':
         return 'warning'; // Yellow
       case 'Rejected':
