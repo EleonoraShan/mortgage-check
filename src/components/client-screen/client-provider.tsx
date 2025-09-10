@@ -1,5 +1,11 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useState, useEffect } from 'react';
 import { AnalysisItemI } from '../analysis/analysis.interfaces';
+import { 
+  saveClientSessionToStorage, 
+  loadClientSessionFromStorage, 
+  getDefaultSessionData,
+  Message 
+} from '../../lib/persistence';
 
 export interface AttachedFile {
   id: string;
@@ -12,16 +18,18 @@ export interface AttachedFile {
 }
 
 
-export interface Message {
-  id: string;
-  content: string;
-  role: "user" | "bot" | "system";
-  timestamp: Date;
-}
+// Message interface moved to persistence.ts
 
 interface ClientContextProps {
+  clientId: string;
   name: string;
   loanAmount: number;
+  depositAmount: number;
+  employmentStatus: string;
+  currentRole: string;
+  company: string;
+  propertyType: string;
+  status: string;
   files: AttachedFile[];
   addFiles: (newFiles: AttachedFile[]) => void;
   removeFile: (newFiles: string) => void;
@@ -34,6 +42,7 @@ interface ClientContextProps {
   affordabilityScore: number
   setAffordabilityScore: React.Dispatch<React.SetStateAction<number>>
   updateFileAnalysis: (id: string, analysis: string) => void
+  updateClient: (clientId: string, updates: Partial<ClientDataI>) => void
 }
 export const ClientContext = createContext<ClientContextProps | undefined>(
   undefined,
@@ -50,29 +59,56 @@ export const useClientContext = () => {
 };
 
 interface ClientProviderProps extends PropsWithChildren {
-  clientData: ClientDataI
+  clientData: ClientDataI;
+  updateClient: (clientId: string, updates: Partial<ClientDataI>) => void;
 }
 
 export const ClientContextProvider = ({
   children,
   clientData,
+  updateClient,
 }: ClientProviderProps) => {
   const [files, setFiles] = useState<AttachedFile[]>([])
   const [analysisItems, setAnalysisItems] = useState<AnalysisItemI[]>([])
   const [affordabilityScore, setAffordabilityScore] = useState(0)
-  const [chatMessages, setChatMessages] = useState<Message[]>([{
-    id: "1",
-    content: "You are a helpful assigtant for a UK based mortgage broker. Your role is to analyse the documents and information submitted by the broker and determine if the client can be safely lended to. You should amongs other things verify consistency of provided information, their expenditure and any concerning spending and whether they can afford the morgage",
-    role: "system",
-    timestamp: new Date(),
-  },
-  {
-    id: "2",
-    content: "Hello! I'm your AI Mortgage Broker assistant. You can attach the document you want to analyse for you clients on the left. Please include any other information like the clients name, how much they are looking to borrow and the value of the property they are looking to buy in the chat ",
-    role: "bot",
-    timestamp: new Date(),
-  }])
+  const [chatMessages, setChatMessages] = useState<Message[]>([])
   const [activeDocuments, setActiveDocuments] = useState<string[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Load session data from localStorage when client changes
+  useEffect(() => {
+    const sessionData = loadClientSessionFromStorage(clientData.id);
+    if (sessionData) {
+      setFiles(sessionData.files);
+      setChatMessages(sessionData.chatMessages);
+      setActiveDocuments(sessionData.activeDocuments);
+      setAnalysisItems(sessionData.analysisItems);
+      setAffordabilityScore(sessionData.affordabilityScore);
+    } else {
+      // Initialize with default data if no session exists
+      const defaultData = getDefaultSessionData();
+      setFiles(defaultData.files);
+      setChatMessages(defaultData.chatMessages);
+      setActiveDocuments(defaultData.activeDocuments);
+      setAnalysisItems(defaultData.analysisItems);
+      setAffordabilityScore(defaultData.affordabilityScore);
+    }
+    setIsInitialized(true);
+  }, [clientData.id]);
+
+  // Save session data to localStorage whenever any session data changes
+  useEffect(() => {
+    if (isInitialized) {
+      const sessionData = {
+        files,
+        chatMessages,
+        activeDocuments,
+        analysisItems,
+        affordabilityScore
+      };
+      saveClientSessionToStorage(clientData.id, sessionData);
+    }
+  }, [files, chatMessages, activeDocuments, analysisItems, affordabilityScore, clientData.id, isInitialized]);
 
   const addFiles = (newFiles: AttachedFile[]) => setFiles((current) => [...current, ...newFiles])
   const addChatMessages = (newMessage: Message) => setChatMessages((current) => [...current, newMessage])
@@ -98,8 +134,15 @@ export const ClientContextProvider = ({
   const removeFile = useCallback((fileId: string) => setFiles((currentFiles) => currentFiles.filter((file) => file.id !== fileId)), [files])
   const value = useMemo(() => {
     return {
+      clientId: clientData.id,
       name: clientData.name,
       loanAmount: clientData.loanAmount,
+      depositAmount: clientData.depositAmount,
+      employmentStatus: clientData.employmentStatus,
+      currentRole: clientData.currentRole,
+      company: clientData.company,
+      propertyType: clientData.propertyType,
+      status: clientData.status,
       files, addFiles,
       chatMessages, addChatMessages,
       activeDocuments,
@@ -109,10 +152,11 @@ export const ClientContextProvider = ({
       setAnalysisItems,
       affordabilityScore,
       setAffordabilityScore,
-      updateFileAnalysis
+      updateFileAnalysis,
+      updateClient
     };
   }, [clientData, files, addFiles, chatMessages, addChatMessages, toggleIsActive, activeDocuments, removeFile, analysisItems,
-    setAnalysisItems, affordabilityScore, setAffordabilityScore, updateFileAnalysis]);
+    setAnalysisItems, affordabilityScore, setAffordabilityScore, updateFileAnalysis, updateClient]);
 
   return (
     <ClientContext.Provider value={value}>

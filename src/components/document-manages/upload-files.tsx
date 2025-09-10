@@ -62,11 +62,11 @@ export const UploadFiles = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-3 lg:gap-0">
         <h3 className="text-lg font-semibold">Documents</h3>
         <Button
           onClick={() => fileInputRef.current?.click()}
-          className="bg-primary hover:bg-primary-hover"
+          className="bg-primary hover:bg-primary-hover w-full lg:w-auto"
         >
           <Upload className="h-4 w-4 mr-2" />
           Upload

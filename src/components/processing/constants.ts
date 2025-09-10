@@ -1,1 +1,3 @@
-export const defaultModel = 'gpt-oss:20b'
+import { getModelName } from '../../config/model-config';
+
+export const defaultModel = getModelName()

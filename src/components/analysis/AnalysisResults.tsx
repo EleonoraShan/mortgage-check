@@ -49,19 +49,37 @@ export const AnalysisResults = () => {
   //   }, 2000);
   // };
 
-  const onRunAnalysis = async () => {
-    const results = await runAnalysis()
-    setAnalysisItems(results)
+    const onRunAnalysis = async () => {
+    try {
+      console.log('Starting analysis...')
+      const results = await runAnalysis()
+      console.log('Analysis completed, setting results:', results)
+      setAnalysisItems(results)
+    } catch (error) {
+      console.error('Analysis failed:', error)
+      // Set a simple error result to show the user what happened
+      setAnalysisItems([{
+        type: 'error',
+        title: 'Analysis Failed',
+        description: error instanceof Error ? error.message : 'Unknown error occurred during analysis',
+        document: 'System'
+      }])
+    }
+  }
+
+  const onExportPDF = async () => {
+    await exportToPDF()
   }
   return (
-    <Card className="p-6 h-full overflow-hidden">
-      <div className="flex items-center justify-between mb-4">
+    <Card className="p-4 sm:p-6 h-full overflow-hidden">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-3 lg:gap-0">
         <h3 className="text-lg font-semibold">Analysis Results</h3>
-        <div className="flex gap-2">
+        <div className="flex flex-col lg:flex-row gap-2">
           <Button
             onClick={onRunAnalysis}
             disabled={isAnalysisRunning || files.length === 0}
             size="sm"
+            className="w-full lg:w-auto"
           >
             {isAnalysisRunning ? (
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -71,10 +89,11 @@ export const AnalysisResults = () => {
             Analyze
           </Button>
           <Button
-            onClick={exportToPDF}
+            onClick={onExportPDF}
             disabled={analysisItems.length === 0}
             size="sm"
             variant="outline"
+            className="w-full lg:w-auto"
           >
             <Download className="h-4 w-4 mr-2" />
             Export PDF
