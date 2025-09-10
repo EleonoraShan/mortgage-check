@@ -120,20 +120,3 @@ export const useRunAnalysis = () => {
     isAnalysisRunning
   }
 }
-
-
-
-// content: `
-// Please produce a risk analysis for a mortgage broker using the following client data:
-
-// ${'Eleonora is currently employed at Google as a software engineer making £100,000 a year. She has passed her probation 3 months ago'}
-
-// Include items for which more information should be submitted.
-
-// Output the analysis as a JSON array of objects with the keys:
-// title, risk_status, explanation. 
-// The risk_status should be one of Low, Medium, High, Insufficient Information.
-// No extra text outside the JSON array.
-
-
-// `
