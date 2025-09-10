@@ -54,13 +54,13 @@ export const useOllamaHealth = () => {
     checkOllamaHealth();
   }, [checkOllamaHealth]);
 
-  // Periodic health checks (every 30 seconds)
+  // Periodic health checks (every 5 minutes)
   useEffect(() => {
     const interval = setInterval(() => {
       if (!healthState.isLoading) {
         checkOllamaHealth();
       }
-    }, 30000);
+    }, 300000);
 
     return () => clearInterval(interval);
   }, [checkOllamaHealth, healthState.isLoading]);

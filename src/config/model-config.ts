@@ -6,7 +6,7 @@
 
 export const MODEL_CONFIG = {
   // Change this line to switch models:
-  model: 'gemma3:1b' as const,
+  model: 'gpt-oss:20b' as const,
   
 } as const;
 
