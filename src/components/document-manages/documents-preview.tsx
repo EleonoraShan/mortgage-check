@@ -17,7 +17,7 @@ export const DocumentPreview = ({
     <TooltipProvider>
       <div
         key={doc.id}
-        className="flex items-center gap-3 p-3 border border-border rounded-lg bg-card"
+        className="grid grid-cols-[auto_auto_1fr_auto] items-center gap-3 p-3 border border-border rounded-lg bg-card"
       >
         <Checkbox
           checked={activeDocuments.includes(doc.id)}
@@ -25,27 +25,27 @@ export const DocumentPreview = ({
             toggleIsActive(doc.id)
           }
         />
-        <FileText className="h-5 w-5 text-primary flex-shrink-0" />
-        <div className="min-w-0 flex-1">
+        <FileText className="h-5 w-5 text-primary" />
+        <div className="min-w-0">
           <Tooltip>
             <TooltipTrigger asChild>
-              <p className="text-sm font-medium truncate cursor-help">{doc.name}</p>
+              <p className="text-sm font-medium truncate cursor-help">
+                {doc.name}
+              </p>
             </TooltipTrigger>
             <TooltipContent>
               <p className="max-w-xs break-words">{doc.name}</p>
             </TooltipContent>
           </Tooltip>
         </div>
-        <div className="flex gap-1 flex-shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 hover:bg-destructive hover:text-destructive-foreground"
-            onClick={() => removeFile(doc.id)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 hover:bg-destructive hover:text-destructive-foreground"
+          onClick={() => removeFile(doc.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     </TooltipProvider>
   )

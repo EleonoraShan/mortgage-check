@@ -8,7 +8,7 @@ import { useRunAnalysis } from './use-run-analysis';
 
 
 export const AnalysisResults = () => {
-  const { files, setAnalysisItems, analysisItems } = useClientContext();
+  const { files, activeDocuments, setAnalysisItems, analysisItems } = useClientContext();
   const { exportToPDF } = useExportAnalysisToPdf()
 
   const { runAnalysis, isAnalysisRunning } = useRunAnalysis();
@@ -71,13 +71,13 @@ export const AnalysisResults = () => {
     await exportToPDF()
   }
   return (
-    <Card className="p-4 sm:p-6 h-full overflow-hidden">
+    <Card className="p-4 sm:p-6 h-full overflow-hidden flex flex-col">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-3 lg:gap-0">
         <h3 className="text-lg font-semibold">Analysis Results</h3>
         <div className="flex flex-col lg:flex-row gap-2">
           <Button
             onClick={onRunAnalysis}
-            disabled={isAnalysisRunning || files.length === 0}
+            disabled={isAnalysisRunning || files.length === 0 || activeDocuments.length === 0}
             size="sm"
             className="w-full lg:w-auto"
           >
@@ -101,7 +101,9 @@ export const AnalysisResults = () => {
         </div>
       </div>
 
-      <AnalysisContent isAnalyzing={isAnalysisRunning} />
+      <div className="flex-1 min-h-0">
+        <AnalysisContent isAnalyzing={isAnalysisRunning} />
+      </div>
     </Card>
   );
 };

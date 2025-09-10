@@ -1,5 +1,4 @@
 import { AnalysisResults } from '../analysis/AnalysisResults';
-import { ChatInterface } from '../chat-interface/ChatInterface';
 import { ClientDetails } from '../client-details';
 import { DocumentManager } from '../document-manages/DocumentManager';
 
