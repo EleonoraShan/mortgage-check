@@ -66,7 +66,7 @@ export const UploadFiles = () => {
         <h3 className="text-lg font-semibold">Documents</h3>
         <Button
           onClick={() => fileInputRef.current?.click()}
-          className="bg-primary hover:bg-primary-hover w-full lg:w-auto"
+          className="bg-primary w-full lg:w-auto"
         >
           <Upload className="h-4 w-4 mr-2" />
           Upload

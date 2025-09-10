@@ -40,11 +40,11 @@ export const AnalysisItemCard = ({ item }: { item: AnalysisItemI }) => {
           <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-2">
             <h5 className="font-medium text-sm leading-tight break-words flex-1 min-w-0">{item.title}</h5>
             <div className="flex-shrink-0 w-full sm:w-auto sm:max-w-[40%]">
-              <div className={`block rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors break-words whitespace-normal leading-tight ${getBadgeVariant(item.risk_status) === 'default' ? 'border-transparent bg-primary text-primary-foreground' : 
+              <div className={`block rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors break-words whitespace-normal leading-tight ${getBadgeVariant(item.risk_status) === 'default' ? 'border-transparent bg-primary text-primary-foreground' :
                 getBadgeVariant(item.risk_status) === 'warning' ? 'border-transparent bg-yellow-500 text-yellow-900' :
-                getBadgeVariant(item.risk_status) === 'destructive' ? 'border-transparent bg-destructive text-destructive-foreground' :
-                'border-transparent bg-gray-200 text-gray-700'}`}>
-                {item.risk_status}
+                  getBadgeVariant(item.risk_status) === 'destructive' ? 'border-transparent bg-destructive text-destructive-foreground' :
+                    'border-transparent bg-gray-200 text-gray-700'}`}>
+                {item.risk_status === "Insufficient Information" ? "Insufficient" : item.risk_status}
               </div>
             </div>
           </div>

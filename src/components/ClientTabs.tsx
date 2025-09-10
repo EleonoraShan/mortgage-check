@@ -1,20 +1,20 @@
 import { Plus, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
+import { useEffect, useState } from 'react';
 import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
+import { Input } from '../components/ui/input';
 import { TooltipProvider } from '../components/ui/tooltip';
-import { ClientContextProvider } from './client-screen/client-provider';
-import { ClientWorkspace } from './client-workspace/ClientWorkspace';
-import { ClientDataI, ClientStatus } from './client-screen/client.interfaces';
-import { 
-  saveClientsToStorage, 
-  loadClientsFromStorage, 
-  saveActiveClientToStorage, 
+import {
+  clearClientSessionFromStorage,
   loadActiveClientFromStorage,
-  clearClientSessionFromStorage
+  loadClientsFromStorage,
+  saveActiveClientToStorage,
+  saveClientsToStorage
 } from '../lib/persistence';
+import { ClientContextProvider } from './client-screen/client-provider';
+import { ClientDataI, ClientStatus } from './client-screen/client.interfaces';
+import { ClientWorkspace } from './client-workspace/ClientWorkspace';
 
 
 
@@ -91,27 +91,27 @@ export const ClientTabs = () => {
   const removeClient = (clientId: string) => {
     const updatedClients = clients.filter(c => c.id !== clientId);
     setClients(updatedClients);
-    
+
     // Clear the session data for the removed client
     clearClientSessionFromStorage(clientId);
-    
+
     if (activeClient === clientId && updatedClients.length > 0) {
       setActiveClient(updatedClients[0].id);
     }
   };
 
   const updateClient = (clientId: string, updates: Partial<ClientDataI>) => {
-    setClients(clients.map(client => 
+    setClients(clients.map(client =>
       client.id === clientId ? { ...client, ...updates } : client
     ));
   };
 
-  const getStatusBadgeVariant = (status: ClientStatus) => {
+  const getStatusBadgeVariant = (status: ClientStatus, isActive: boolean) => {
     switch (status) {
       case 'Approved':
-        return 'default'; // Green
+        return isActive ? 'outline' : 'default'; // Green
       case 'Under review':
-        return 'secondary'; // Yellow
+        return 'warning'; // Yellow
       case 'Rejected':
         return 'destructive'; // Red
       default:
@@ -172,11 +172,10 @@ export const ClientTabs = () => {
               {clients.map((client) => (
                 <div
                   key={client.id}
-                  className={`p-2 sm:p-3 rounded-lg border transition-colors cursor-pointer ${
-                    activeClient === client.id
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-background hover:bg-muted border-border'
-                  }`}
+                  className={`p-2 sm:p-3 rounded-lg border transition-colors cursor-pointer ${activeClient === client.id
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-background hover:bg-muted border-border'
+                    }`}
                   onClick={() => setActiveClient(client.id)}
                 >
                   <div className="flex items-start justify-between mb-2">
@@ -197,7 +196,7 @@ export const ClientTabs = () => {
                       </Button>
                     )}
                   </div>
-                  
+
                   {/* Status Badge - Clickable */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -207,7 +206,7 @@ export const ClientTabs = () => {
                         className="h-auto p-1 hover:bg-transparent"
                       >
                         <Badge
-                          variant={getStatusBadgeVariant(client.status)}
+                          variant={getStatusBadgeVariant(client.status, activeClient === client.id)}
                           className="text-xs flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                         >
                           {client.status}
@@ -215,7 +214,7 @@ export const ClientTabs = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-40">
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => {
                           console.log('Setting status to Approved for client:', client.id);
                           updateClient(client.id, { status: 'Approved' });
@@ -223,7 +222,7 @@ export const ClientTabs = () => {
                       >
                         Approved
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => {
                           console.log('Setting status to Under review for client:', client.id);
                           updateClient(client.id, { status: 'Under review' });
@@ -231,7 +230,7 @@ export const ClientTabs = () => {
                       >
                         Under review
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => {
                           console.log('Setting status to Rejected for client:', client.id);
                           updateClient(client.id, { status: 'Rejected' });
