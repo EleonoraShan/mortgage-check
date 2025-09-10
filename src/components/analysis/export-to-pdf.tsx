@@ -1,18 +1,18 @@
-import jsPDF from 'jspdf';
 import { invoke } from '@tauri-apps/api/core';
+import jsPDF from 'jspdf';
 import { useClientContext } from '../client-screen';
 import { useToast } from '../ui/use-toast';
 
 export const useExportAnalysisToPdf = () => {
-  const { 
-    name, 
-    loanAmount, 
-    depositAmount, 
-    employmentStatus, 
-    currentRole, 
-    company, 
-    propertyType, 
-    analysisItems 
+  const {
+    name,
+    loanAmount,
+    depositAmount,
+    employmentStatus,
+    currentRole,
+    company,
+    propertyType,
+    analysisItems
   } = useClientContext();
   const { toast } = useToast();
 
@@ -134,7 +134,7 @@ export const useExportAnalysisToPdf = () => {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(28);
     doc.setFont('helvetica', 'bold');
-    addCenteredText('Valora', pageWidth / 2, 45, 28, 'bold', [255, 255, 255]);
+    addCenteredText('Lendomus', pageWidth / 2, 45, 28, 'bold', [255, 255, 255]);
     
     doc.setFontSize(14);
     doc.setFont('helvetica', 'normal');
@@ -144,7 +144,7 @@ export const useExportAnalysisToPdf = () => {
 
     // 1. Client Information Section
     yPosition = addSectionHeader('Client Information', yPosition);
-    
+
     const clientInfo = [
       `Client Name: ${name}`,
       `Requested Loan Amount: £${loanAmount.toLocaleString()}`,
@@ -153,11 +153,11 @@ export const useExportAnalysisToPdf = () => {
       ...(currentRole && currentRole !== 'Type information here' ? [`Current Role: ${currentRole}`] : []),
       ...(company && company !== 'Type information here' ? [`Company: ${company}`] : []),
       `Property Type: ${propertyType === 'Select property type' ? 'Not specified' : propertyType}`,
-      `Report Generated: ${new Date().toLocaleDateString('en-GB', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+      `Report Generated: ${new Date().toLocaleDateString('en-GB', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
       })}`
     ];
     
@@ -227,7 +227,7 @@ export const useExportAnalysisToPdf = () => {
     addCenteredText(riskGrouped['Medium'].length.toString(), margin + cardWidth + cardSpacing + (cardWidth / 2), yPosition + 55, 24, 'bold', [0, 0, 0]);
     
     yPosition += cardHeight + cardSpacing;
-    
+
     // High Risk Card
     fillRoundedRect(margin, yPosition, cardWidth, cardHeight, colors.danger, 8);
     addCenteredText('HIGH RISK', margin + (cardWidth / 2), yPosition + 25, 12, 'bold', [255, 255, 255]);
@@ -338,17 +338,17 @@ export const useExportAnalysisToPdf = () => {
     // Generate PDF data
     const pdfData = doc.output('arraybuffer');
     const fileName = `${name.replace(/\s+/g, '_')}_Analysis_${new Date().toISOString().split('T')[0]}.pdf`;
-    
+
     try {
       // Convert ArrayBuffer to Uint8Array for Tauri
       const pdfBytes = new Uint8Array(pdfData);
-      
+
       // Use Tauri command to save the file
       const result = await invoke('save_pdf_file', {
         pdfData: Array.from(pdfBytes),
         suggestedFilename: fileName
       });
-      
+
       toast({
         title: "PDF Exported Successfully",
         description: result as string,
