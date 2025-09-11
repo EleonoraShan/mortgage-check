@@ -5,7 +5,7 @@ import { DocumentManager } from '../document-manages/DocumentManager';
 
 export const ClientWorkspace = () => {
   return (
-    <div className="flex h-screen w-full overflow-hidden p-4 lg:p-6">
+    <div className="flex h-[calc(100vh-65px)] w-full overflow-hidden p-4 lg:p-6">
       {/* Two columns (50/50): Left (ClientDetails + DocumentManager), Right (AnalysisResults) */}
       <div className="flex flex-1 min-w-0 gap-4 lg:gap-6">
         {/* Left Column - Client Details + Document Manager (stacked) */}

@@ -123,7 +123,7 @@ export const ClientTabs = () => {
 
   return (
     <TooltipProvider>
-      <div className="flex h-screen w-full overflow-hidden">
+      <div className="flex h-[calc(100vh-65px)] w-full overflow-hidden">
         {/* Left Sidebar - Client List */}
         <div className="w-48 sm:w-56 md:w-64 lg:w-72 xl:w-80 bg-card border-r border-border flex flex-col overflow-hidden">
           {/* Header */}
