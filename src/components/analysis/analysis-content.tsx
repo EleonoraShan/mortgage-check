@@ -15,7 +15,9 @@ export const AnalysisContent = ({ isAnalyzing }: { isAnalyzing: boolean }) => {
   // Check if there's an error item (analysis failed)
   const hasError = analysisItems.some(item => item.risk_status === 'Insufficient Information' && item.title === 'Analysis Failed');
 
-  if (files.length === 0 || activeDocuments.length === 0 || analysisItems.length === 0 || hasError) {
+  console.log({ analysisItems, files, activeDocuments })
+
+  if (((files.length === 0 || activeDocuments.length === 0) && analysisItems.length === 0) || analysisItems.length === 0 || hasError) {
     return <NoFilesOrAnalysis noFiles={files.length === 0} />
   }
 
