@@ -253,8 +253,11 @@ export const useExportAnalysisToPdf = () => {
     // Process each risk level in order: Low, Medium, High, Insufficient Information
     const riskOrder = ['Low', 'Medium', 'High', 'Insufficient Information'];
 
-    riskOrder.forEach(riskLevel => {
+    riskOrder.forEach((riskLevel, groupIndex) => {
       const items = riskGrouped[riskLevel as keyof typeof riskGrouped];
+      const offset = riskOrder
+        .slice(0, groupIndex)
+        .reduce((sum, rl) => sum + riskGrouped[rl as keyof typeof riskGrouped].length, 0);
 
       if (items.length > 0) {
         // Individual findings (no subheading, just process items directly)
@@ -274,7 +277,8 @@ export const useExportAnalysisToPdf = () => {
           // Title
           doc.setFontSize(13);
           doc.setFont('helvetica', 'bold');
-          const titleText = `${index + 1}. ${item.title}`;
+          const displayIndex = offset + index + 1;
+          const titleText = `${displayIndex}. ${item.title}`;
           const titleMaxWidth = maxContentWidth - badgeWidth - 15; // Leave space for badge
           const titleLines = doc.splitTextToSize(titleText, titleMaxWidth);
           const titleHeight = titleLines.length * 15;
