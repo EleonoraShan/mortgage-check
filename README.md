@@ -10,7 +10,8 @@ After the initial download and set up the app runs completely offline. Users (mo
 
 Post install the application can be ran with npm run tauri dev
 
-On launch, if you already have Ollama installed and gpt-oss:20b downloaded Ollama will automatically be launched and the application will run for you completely locally
+On launch, if you already have Ollama installed and gpt-oss:20b downloaded Ollama will automatically be launched and the application will run for you completely locally.
+
 If you don't have either one (or both), they will be automatically downloaded. Since the model is fairly large this can take a little while
 
 # How to test
