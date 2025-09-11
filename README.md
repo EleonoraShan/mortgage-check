@@ -8,7 +8,7 @@ After the initial download and set up the app runs completely offline. Users (mo
 
 # How to run
 
-Post install the application can be ran with npm run tauri dev
+Post install the desktop application can be ran with ```npm run tauri dev```. The app is predominantly designed to run on an Apple Silicon Mac.
 
 On launch, if you already have Ollama installed and gpt-oss:20b downloaded Ollama will automatically be started and the application will run for you completely locally.
 
