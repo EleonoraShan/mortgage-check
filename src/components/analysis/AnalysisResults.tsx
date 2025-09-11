@@ -8,7 +8,7 @@ import { useRunAnalysis } from './use-run-analysis';
 
 
 export const AnalysisResults = () => {
-  const { files, activeDocuments, setAnalysisItems, analysisItems } = useClientContext();
+  const { activeDocuments, setAnalysisItems, analysisItems } = useClientContext();
   const { exportToPDF } = useExportAnalysisToPdf()
 
   const { runAnalysis, isAnalysisRunning } = useRunAnalysis();
@@ -49,7 +49,7 @@ export const AnalysisResults = () => {
   //   }, 2000);
   // };
 
-    const onRunAnalysis = async () => {
+  const onRunAnalysis = async () => {
     try {
       console.log('Starting analysis...')
       const results = await runAnalysis()
@@ -76,7 +76,7 @@ export const AnalysisResults = () => {
         <div className="flex flex-col lg:flex-row gap-2">
           <Button
             onClick={onRunAnalysis}
-            disabled={isAnalysisRunning || files.length === 0 || activeDocuments.length === 0}
+            disabled={isAnalysisRunning || activeDocuments.length === 0}
             size="sm"
             className="w-full lg:w-auto"
           >
