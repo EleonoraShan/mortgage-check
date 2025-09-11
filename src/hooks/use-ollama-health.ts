@@ -35,6 +35,12 @@ export const useOllamaHealth = () => {
           error: null,
           lastChecked: new Date()
         });
+        return {
+          isConnected: true,
+          isLoading: false,
+          error: null,
+          lastChecked: new Date()
+        }
       } else {
         throw new Error('Invalid response from Ollama');
       }
@@ -46,6 +52,12 @@ export const useOllamaHealth = () => {
         error: error instanceof Error ? error.message : 'Unknown error',
         lastChecked: new Date()
       });
+      return {
+        isConnected: false,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        lastChecked: new Date()
+      }
     }
   }, []);
 
@@ -54,16 +66,16 @@ export const useOllamaHealth = () => {
     checkOllamaHealth();
   }, [checkOllamaHealth]);
 
-  // // Periodic health checks (every 5 minutes)
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (!healthState.isLoading) {
-  //       checkOllamaHealth();
-  //     }
-  //   }, 3000000);
+  // Periodic health checks (every 5 minutes)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!healthState.isLoading) {
+        checkOllamaHealth();
+      }
+    }, 3000000);
 
-  //   return () => clearInterval(interval);
-  // }, [checkOllamaHealth, healthState.isLoading]);
+    return () => clearInterval(interval);
+  }, [checkOllamaHealth, healthState.isLoading]);
 
   return {
     ...healthState,

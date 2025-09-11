@@ -1,4 +1,4 @@
-import { AlertTriangle, RefreshCw, ExternalLink, Terminal } from 'lucide-react';
+import { AlertTriangle, ExternalLink, RefreshCw, Terminal } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 
@@ -17,7 +17,7 @@ export const OllamaErrorScreen = ({ onRetry, isRetrying = false }: OllamaErrorSc
             Ollama Connection Failed
           </h1>
           <p className="text-muted-foreground text-lg">
-          Lendomus requires Ollama to be running for document analysis and AI features.
+            Lendomus requires Ollama to be running for document analysis and AI features.
           </p>
         </div>
 
@@ -42,7 +42,7 @@ export const OllamaErrorScreen = ({ onRetry, isRetrying = false }: OllamaErrorSc
             <div>
               <p className="font-medium mb-1">3. Pull the required model (in a new terminal):</p>
               <code className="bg-background px-2 py-1 rounded text-xs block">
-                ollama pull llama3.2:3b
+                ollama pull gpt-oss:20b
               </code>
             </div>
           </div>
@@ -61,8 +61,8 @@ export const OllamaErrorScreen = ({ onRetry, isRetrying = false }: OllamaErrorSc
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button 
-            onClick={onRetry} 
+          <Button
+            onClick={onRetry}
             disabled={isRetrying}
             className="flex items-center gap-2"
           >
@@ -73,9 +73,9 @@ export const OllamaErrorScreen = ({ onRetry, isRetrying = false }: OllamaErrorSc
             )}
             {isRetrying ? 'Checking Connection...' : 'Retry Connection'}
           </Button>
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             onClick={() => window.open('https://ollama.ai/docs', '_blank')}
             className="flex items-center gap-2"
           >
