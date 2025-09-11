@@ -54,16 +54,16 @@ export const useOllamaHealth = () => {
     checkOllamaHealth();
   }, [checkOllamaHealth]);
 
-  // Periodic health checks (every 5 minutes)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!healthState.isLoading) {
-        checkOllamaHealth();
-      }
-    }, 3000000);
+  // // Periodic health checks (every 5 minutes)
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (!healthState.isLoading) {
+  //       checkOllamaHealth();
+  //     }
+  //   }, 3000000);
 
-    return () => clearInterval(interval);
-  }, [checkOllamaHealth, healthState.isLoading]);
+  //   return () => clearInterval(interval);
+  // }, [checkOllamaHealth, healthState.isLoading]);
 
   return {
     ...healthState,

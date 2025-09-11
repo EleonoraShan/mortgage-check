@@ -17,11 +17,13 @@ export interface ClientSessionData {
   affordabilityScore: number;
 }
 
+const id = 'a1'
+
 const STORAGE_KEYS = {
-  CLIENTS: 'mortgage-check-clients',
-  ACTIVE_CLIENT: 'mortgage-check-active-client',
-  CLIENT_SESSION: (clientId: string) => `mortgage-check-session-${clientId}`,
-  WELCOME_SEEN: 'mortgage-check-welcome-seen',
+  CLIENTS: `mortgage-check-clients-${id}`,
+  ACTIVE_CLIENT: `mortgage-check-active-client-${id}`,
+  CLIENT_SESSION: (clientId: string) => `mortgage-check-session-${clientId}-${id}`,
+  WELCOME_SEEN: `mortgage-check-welcome-seen-${id}`,
 };
 
 // Client data persistence
