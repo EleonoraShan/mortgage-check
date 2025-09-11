@@ -30,12 +30,18 @@ const App = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  useEffect(() => {
-    console.log('App useEffect running...')
-
-    initializeOllama().then((success) => {
+  const attemptToInitialise = () => {
+    setIsError(false)
+    setIsAppLoading(true)
+    initializeOllama().then(async (success) => {
       console.log('Ollama init result:', success)
       if (!success) {
+        setIsError(true)
+      }
+
+      // Check if the correct model is running
+      const { error } = await retry();
+      if (error !== null) {
         setIsError(true)
       }
     }).catch((e) => {
@@ -46,6 +52,12 @@ const App = () => {
       setIsAppLoading(false)
       setShowSplashScreen(false)
     })
+  }
+
+  useEffect(() => {
+    console.log('App useEffect running...')
+
+    attemptToInitialise()
 
   }, [])
 
@@ -58,7 +70,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <OllamaErrorScreen onRetry={retry} isRetrying={isHealthLoading} />
+          <OllamaErrorScreen onRetry={attemptToInitialise} isRetrying={isHealthLoading} />
         </TooltipProvider>
       </QueryClientProvider>
     )

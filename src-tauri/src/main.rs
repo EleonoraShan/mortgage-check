@@ -7,12 +7,63 @@ use std::time::Duration;
 use std::sync::Mutex;
 use std::path::PathBuf;
 use std::fs;
+use std::net::{TcpStream, SocketAddr};
 use tauri_plugin_dialog::DialogExt;
 
 const MODEL_NAME: &str = "gpt-oss:20b";
 
 #[derive(Default)]
 struct OllamaProcess(Mutex<Option<Child>>);
+
+#[tauri::command]
+async fn check_ollama_and_model(app_handle: AppHandle) -> Result<String, String> {
+    // Check if Ollama server is running by trying to connect to it
+    if !is_ollama_running() {
+        return Err("Ollama server is not running".to_string());
+    }
+    
+    // Use HTTP API to check for models (avoids command line permission issues)
+    let client = reqwest::Client::new();
+    let response = client
+        .get("http://127.0.0.1:11434/api/tags")
+        .timeout(Duration::from_secs(5))
+        .send()
+        .await
+        .map_err(|e| format!("Failed to connect to Ollama API: {}", e))?;
+    
+    if !response.status().is_success() {
+        return Err(format!("Ollama API returned error: {}", response.status()));
+    }
+    
+    let models_response: serde_json::Value = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse models response: {}", e))?;
+    
+    let models = models_response["models"]
+        .as_array()
+        .ok_or("Invalid models response format")?;
+    
+    // Check if our model is in the list (case-insensitive and handle variations)
+    let model_found = models.iter().any(|model| {
+        if let Some(name) = model["name"].as_str() {
+            let name_lower = name.to_lowercase();
+            name_lower.contains("gpt-oss") && name_lower.contains("20b")
+        } else {
+            false
+        }
+    });
+    
+    if model_found {
+        Ok("Ollama and model are available".to_string())
+    } else {
+        let model_names: Vec<String> = models
+            .iter()
+            .filter_map(|m| m["name"].as_str().map(|s| s.to_string()))
+            .collect();
+        Err(format!("Model '{}' is not available. Available models: {:?}", MODEL_NAME, model_names))
+    }
+}
 
 #[tauri::command]
 async fn ensure_ollama_and_model(app_handle: AppHandle) -> Result<String, String> {
@@ -34,13 +85,13 @@ async fn ensure_ollama_and_model(app_handle: AppHandle) -> Result<String, String
             if output.contains(MODEL_NAME) {
                 Ok("Model already available".to_string())
             } else {
+              Err(format!("Model not available"))
                 // Download the model
-                download_model().await
+                // download_model().await
             }
         },
         Err(_) => {
-            // Ollama not installed, install it first
-            install_ollama_and_model(app_handle).await
+          Err(format!("Ollama not installed"))
         }
     }
 }
@@ -146,7 +197,7 @@ async fn download_model_with_local_ollama(ollama_path: &PathBuf) -> Result<Strin
 #[tauri::command]
 async fn start_ollama(app_handle: AppHandle) -> Result<String, String> {
     // First ensure Ollama and model are available
-    ensure_ollama_and_model(app_handle.clone()).await?;
+    // ensure_ollama_and_model(app_handle.clone()).await?;
     
     // Try system Ollama first, fall back to bundled
     let ollama_cmd = if Command::new("ollama").arg("--version").output().is_ok() {
@@ -235,6 +286,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             start_ollama, 
             stop_ollama, 
+            check_ollama_and_model,
             ensure_ollama_and_model,
             download_model,
             save_pdf_file
@@ -245,6 +297,16 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn is_ollama_running() -> bool {
+    let addr: SocketAddr = "127.0.0.1:11434".parse().unwrap();
+    if let Ok(stream) = TcpStream::connect_timeout(&addr, Duration::from_millis(300)) {
+        let _ = stream;
+        true
+    } else {
+        false
+    }
 }
 
 fn main() {
