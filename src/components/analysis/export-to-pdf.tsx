@@ -65,13 +65,13 @@ export const useExportAnalysisToPdf = () => {
     const addSectionHeader = (title: string, yPos: number) => {
       const sectionHeaderHeight = 35;
       const radius = 8;
-      
+
       // Rounded background
       fillRoundedRect(margin, yPos, contentWidth, sectionHeaderHeight, colors.primary, radius);
-      
+
       // Centered title
       addCenteredText(title, margin + (contentWidth / 2), yPos + 22, 16, 'bold', [255, 255, 255]);
-      
+
       return yPos + sectionHeaderHeight + 20;
     };
 
@@ -80,19 +80,19 @@ export const useExportAnalysisToPdf = () => {
       const cardPadding = 20;
       const maxContentWidth = contentWidth - (cardPadding * 2);
       let totalHeight = cardPadding;
-      
+
       // Calculate total height needed
       content.forEach(line => {
         const wrappedLines = doc.splitTextToSize(line, maxContentWidth);
         totalHeight += wrappedLines.length * 14 + 8;
       });
-      
+
       const cardHeight = totalHeight + cardPadding;
-      
+
       // Card background with rounded corners
       fillRoundedRect(margin, yPos, contentWidth, cardHeight, backgroundColor, 8);
       drawRoundedRect(margin, yPos, contentWidth, cardHeight, 8);
-      
+
       // Content with proper spacing
       let currentY = yPos + cardPadding + 12;
       content.forEach(line => {
@@ -103,7 +103,7 @@ export const useExportAnalysisToPdf = () => {
         doc.text(wrappedLines, margin + cardPadding, currentY);
         currentY += wrappedLines.length * 14 + 8;
       });
-      
+
       return yPos + cardHeight + 15;
     };
 
@@ -130,16 +130,16 @@ export const useExportAnalysisToPdf = () => {
 
     // Header with modern design
     fillRoundedRect(0, 0, pageWidth, 100, colors.primary, 0);
-    
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(28);
     doc.setFont('helvetica', 'bold');
     addCenteredText('Lendomus', pageWidth / 2, 45, 28, 'bold', [255, 255, 255]);
-    
+
     doc.setFontSize(14);
     doc.setFont('helvetica', 'normal');
     addCenteredText('Mortgage Intelligence Report', pageWidth / 2, 70, 14, 'normal', [255, 255, 255]);
-    
+
     yPosition = 120;
 
     // 1. Client Information Section
@@ -160,27 +160,27 @@ export const useExportAnalysisToPdf = () => {
         day: 'numeric'
       })}`
     ];
-    
+
     yPosition = addModernCard(clientInfo, yPosition);
 
     // 2. Model Summary Section
     yPosition = addSectionHeader('Executive Summary', yPosition);
-    
+
     const riskGrouped = getRiskGroupedItems();
     const summaryPoints = [];
-    
+
     if (riskGrouped['Low'].length > 0) {
       summaryPoints.push(`• ${riskGrouped['Low'].length} low-risk finding(s) identified - application shows positive indicators`);
     }
-    
+
     if (riskGrouped['Medium'].length > 0) {
       summaryPoints.push(`• ${riskGrouped['Medium'].length} medium-risk finding(s) require attention and potential mitigation`);
     }
-    
+
     if (riskGrouped['High'].length > 0) {
       summaryPoints.push(`• ${riskGrouped['High'].length} high-risk finding(s) need immediate resolution before proceeding`);
     }
-    
+
     if (riskGrouped['Insufficient Information'].length > 0) {
       summaryPoints.push(`• ${riskGrouped['Insufficient Information'].length} item(s) require additional documentation for complete assessment`);
     }
@@ -198,41 +198,41 @@ export const useExportAnalysisToPdf = () => {
     if (riskGrouped['Low'].length > 0 && riskGrouped['High'].length === 0) {
       summaryPoints.push(`• Application ready: Positive indicators support proceeding with submission`);
     }
-    
+
     yPosition = addModernCard(summaryPoints, yPosition, [240, 248, 255]);
 
     // 3. Analysis Statistics Cards
     yPosition = addSectionHeader('Risk Assessment Overview', yPosition);
-    
+
     // Check if we have enough space for the header AND the statistics cards
     const cardWidth = (contentWidth - 20) / 2;
     const cardHeight = 80;
     const cardSpacing = 20;
     const riskAssessmentHeaderHeight = 35 + 20; // Section header height + margin
     const totalStatsHeight = riskAssessmentHeaderHeight + (cardHeight * 2) + cardSpacing + 30; // Header + two rows + spacing + margin
-    
+
     if (yPosition + totalStatsHeight > pageHeight - 100) {
       doc.addPage();
       yPosition = margin;
     }
-    
+
     // Low Risk Card
     fillRoundedRect(margin, yPosition, cardWidth, cardHeight, colors.success, 8);
     addCenteredText('LOW RISK', margin + (cardWidth / 2), yPosition + 25, 12, 'bold', [255, 255, 255]);
     addCenteredText(riskGrouped['Low'].length.toString(), margin + (cardWidth / 2), yPosition + 55, 24, 'bold', [255, 255, 255]);
-    
+
     // Medium Risk Card
     fillRoundedRect(margin + cardWidth + cardSpacing, yPosition, cardWidth, cardHeight, colors.warning, 8);
     addCenteredText('MEDIUM RISK', margin + cardWidth + cardSpacing + (cardWidth / 2), yPosition + 25, 12, 'bold', [0, 0, 0]);
     addCenteredText(riskGrouped['Medium'].length.toString(), margin + cardWidth + cardSpacing + (cardWidth / 2), yPosition + 55, 24, 'bold', [0, 0, 0]);
-    
+
     yPosition += cardHeight + cardSpacing;
 
     // High Risk Card
     fillRoundedRect(margin, yPosition, cardWidth, cardHeight, colors.danger, 8);
     addCenteredText('HIGH RISK', margin + (cardWidth / 2), yPosition + 25, 12, 'bold', [255, 255, 255]);
     addCenteredText(riskGrouped['High'].length.toString(), margin + (cardWidth / 2), yPosition + 55, 24, 'bold', [255, 255, 255]);
-    
+
     // Insufficient Info Card
     fillRoundedRect(margin + cardWidth + cardSpacing, yPosition, cardWidth, cardHeight, colors.info, 8);
     addCenteredText('INSUFFICIENT INFO', margin + cardWidth + cardSpacing + (cardWidth / 2), yPosition + 25, 12, 'bold', [255, 255, 255]);
@@ -247,22 +247,22 @@ export const useExportAnalysisToPdf = () => {
       doc.addPage();
       yPosition = margin;
     }
-    
+
     yPosition = addSectionHeader('Detailed Analysis', yPosition);
 
     // Process each risk level in order: Low, Medium, High, Insufficient Information
     const riskOrder = ['Low', 'Medium', 'High', 'Insufficient Information'];
-    
+
     riskOrder.forEach(riskLevel => {
       const items = riskGrouped[riskLevel as keyof typeof riskGrouped];
-      
+
       if (items.length > 0) {
         // Individual findings (no subheading, just process items directly)
         items.forEach((item, index) => {
           // Calculate card height first
           const cardPadding = 15;
           const maxContentWidth = contentWidth - (cardPadding * 2);
-          
+
           // Calculate badge width based on text length
           doc.setFontSize(10);
           doc.setFont('helvetica', 'bold');
@@ -270,7 +270,7 @@ export const useExportAnalysisToPdf = () => {
           const badgeTextWidth = doc.getTextWidth(badgeText);
           const badgeWidth = Math.max(badgeTextWidth + 16, 100); // Add padding, minimum 100px
           const badgeHeight = 22;
-          
+
           // Title
           doc.setFontSize(13);
           doc.setFont('helvetica', 'bold');
@@ -278,15 +278,15 @@ export const useExportAnalysisToPdf = () => {
           const titleMaxWidth = maxContentWidth - badgeWidth - 15; // Leave space for badge
           const titleLines = doc.splitTextToSize(titleText, titleMaxWidth);
           const titleHeight = titleLines.length * 15;
-          
+
           // Description
           doc.setFontSize(11);
           doc.setFont('helvetica', 'normal');
           const descriptionLines = doc.splitTextToSize(item.explanation, maxContentWidth);
           const descriptionHeight = descriptionLines.length * 13;
-          
+
           const totalCardHeight = Math.max(titleHeight + descriptionHeight + (cardPadding * 2) + 10, badgeHeight + (cardPadding * 2));
-          
+
           // Check if we need a new page for this card
           if (yPosition + totalCardHeight > pageHeight - 100) {
             doc.addPage();
@@ -296,29 +296,29 @@ export const useExportAnalysisToPdf = () => {
           // Card background
           fillRoundedRect(margin, yPosition, contentWidth, totalCardHeight, colors.cardBackground, 8);
           drawRoundedRect(margin, yPosition, contentWidth, totalCardHeight, 8);
-          
+
           // Risk status badge (positioned on the right side)
           const riskColor = getRiskColor(item.risk_status);
           const badgeX = margin + contentWidth - cardPadding - badgeWidth;
           fillRoundedRect(badgeX, yPosition + cardPadding, badgeWidth, badgeHeight, riskColor, 4);
-          
+
           doc.setTextColor(255, 255, 255);
           doc.setFontSize(10);
           doc.setFont('helvetica', 'bold');
           doc.text(badgeText, badgeX + (badgeWidth / 2), yPosition + cardPadding + 14, { align: 'center' });
-          
+
           // Title (positioned on the left, with space for badge)
           doc.setFontSize(13);
           doc.setFont('helvetica', 'bold');
           doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
           doc.text(titleLines, margin + cardPadding, yPosition + cardPadding + 12);
-          
+
           // Description
           doc.setFontSize(11);
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(colors.mutedText[0], colors.mutedText[1], colors.mutedText[2]);
           doc.text(descriptionLines, margin + cardPadding, yPosition + cardPadding + titleHeight + 20);
-          
+
           yPosition += totalCardHeight + 15;
         });
       }
@@ -330,7 +330,7 @@ export const useExportAnalysisToPdf = () => {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     addCenteredText('Generated by Lendomus - Mortgage Intelligence Platform', pageWidth / 2, footerY, 10, 'normal', colors.mutedText);
-    
+
     // Page numbers
     const pageInfo = doc.getCurrentPageInfo();
     doc.text(`Page ${pageInfo.pageNumber}`, pageWidth - margin - 30, footerY);

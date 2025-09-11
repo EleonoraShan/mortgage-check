@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [showSplashScreen, setShowSplashScreen] = useState(true)
-  const [isAppLoading, setIsAppLoading] = useState(false)
+  const [isAppLoading, setIsAppLoading] = useState(true)
   const [isError, setIsError] = useState(false)
 
   // Use Ollama health check

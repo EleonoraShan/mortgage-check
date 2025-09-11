@@ -21,7 +21,7 @@ const STORAGE_KEYS = {
   CLIENTS: 'mortgage-check-clients',
   ACTIVE_CLIENT: 'mortgage-check-active-client',
   CLIENT_SESSION: (clientId: string) => `mortgage-check-session-${clientId}`,
-  WELCOME_SEEN: 'mortgage-check-welcome-seen',
+  WELCOME_SEEN: 'mortgage-check-welcome-seen-6',
 };
 
 // Client data persistence

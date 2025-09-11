@@ -16,15 +16,20 @@ struct OllamaProcess(Mutex<Option<Child>>);
 
 #[tauri::command]
 async fn ensure_ollama_and_model(app_handle: AppHandle) -> Result<String, String> {
+    // Resolve Ollama binary
+    let ollama_cmd = resolve_ollama_binary().ok_or_else(||
+        "Ollama is not installed or not found in PATH. Install from https://ollama.com/download or set OLLAMA_PATH.".to_string()
+    )?;
+    
     // Check if Ollama is installed
-    let ollama_check = Command::new("ollama")
+    let ollama_check = Command::new(&ollama_cmd)
         .arg("--version")
         .output();
-    
+
     match ollama_check {
         Ok(_) => {
             // Ollama is installed, check for model
-            let model_check = Command::new("ollama")
+            let model_check = Command::new(&ollama_cmd)
                 .args(["list"])
                 .output()
                 .map_err(|e| format!("Failed to list models: {}", e))?;
@@ -39,15 +44,18 @@ async fn ensure_ollama_and_model(app_handle: AppHandle) -> Result<String, String
             }
         },
         Err(_) => {
-            // Ollama not installed, install it first
-            install_ollama_and_model(app_handle).await
+            // Ollama not installed. Don't attempt to self-install in production.
+            Err("Ollama is not installed. Please install Ollama from https://ollama.com/download and try again.".to_string())
         }
     }
 }
 
 #[tauri::command] 
 async fn download_model() -> Result<String, String> {
-    let mut cmd = Command::new("ollama");
+    let ollama_cmd = resolve_ollama_binary().ok_or_else(||
+        "Ollama is not installed or not found in PATH. Install from https://ollama.com/download or set OLLAMA_PATH.".to_string()
+    )?;
+    let mut cmd = Command::new(ollama_cmd);
     cmd.args(["pull", MODEL_NAME])
        .stdout(Stdio::piped())
        .stderr(Stdio::piped());
@@ -63,103 +71,18 @@ async fn download_model() -> Result<String, String> {
     }
 }
 
-#[tauri::command]
-async fn install_ollama_and_model(app_handle: AppHandle) -> Result<String, String> {
-    // Get app data directory for storing Ollama
-    let app_data_dir = app_handle
-        .path()
-        .app_data_dir()
-        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
-    
-    let ollama_dir = app_data_dir.join("ollama");
-    fs::create_dir_all(&ollama_dir)
-        .map_err(|e| format!("Failed to create ollama directory: {}", e))?;
-    
-    // Download Ollama binary
-    let ollama_path = ollama_dir.join("ollama");
-    
-    // Download Ollama for macOS
-    let download_result = download_ollama_binary(&ollama_path).await?;
-    
-    // Make executable
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        let mut perms = fs::metadata(&ollama_path)
-            .map_err(|e| format!("Failed to get permissions: {}", e))?
-            .permissions();
-        perms.set_mode(0o755);
-        fs::set_permissions(&ollama_path, perms)
-            .map_err(|e| format!("Failed to set permissions: {}", e))?;
-    }
-    
-    // Now download the model using our local Ollama
-    let model_result = download_model_with_local_ollama(&ollama_path).await?;
-    
-    Ok(format!("Ollama installed and model downloaded: {}", model_result))
-}
-
-async fn download_ollama_binary(ollama_path: &PathBuf) -> Result<String, String> {
-    // This would use reqwest or similar to download
-    // For now, using curl as a simple example
-    let output = Command::new("curl")
-        .args(["-L", "https://ollama.ai/download/darwin", "-o", ollama_path.to_str().unwrap()])
-        .output()
-        .map_err(|e| format!("Failed to download Ollama: {}", e))?;
-    
-    if output.status.success() {
-        Ok("Ollama binary downloaded".to_string())
-    } else {
-        let error = String::from_utf8_lossy(&output.stderr);
-        Err(format!("Failed to download Ollama binary: {}", error))
-    }
-}
-
-async fn download_model_with_local_ollama(ollama_path: &PathBuf) -> Result<String, String> {
-    // Start Ollama server in background
-    let mut server_cmd = Command::new(ollama_path);
-    server_cmd.arg("serve")
-              .stdout(Stdio::null())
-              .stderr(Stdio::null());
-    
-    let server_process = server_cmd.spawn()
-        .map_err(|e| format!("Failed to start Ollama server: {}", e))?;
-    
-    // Wait for server to start
-    thread::sleep(Duration::from_secs(3));
-    
-    // Download model
-    let mut model_cmd = Command::new(ollama_path);
-    model_cmd.args(["pull", MODEL_NAME]);
-    
-    let output = model_cmd.output()
-        .map_err(|e| format!("Failed to download model: {}", e))?;
-    
-    if output.status.success() {
-        Ok("Model downloaded successfully".to_string())
-    } else {
-        let error = String::from_utf8_lossy(&output.stderr);
-        Err(format!("Failed to download model: {}", error))
-    }
-}
+// Note: We intentionally do not attempt to self-install Ollama in production.
+// Installing third-party runtimes should be handled by the user or an installer.
 
 #[tauri::command]
 async fn start_ollama(app_handle: AppHandle) -> Result<String, String> {
     // First ensure Ollama and model are available
     ensure_ollama_and_model(app_handle.clone()).await?;
     
-    // Try system Ollama first, fall back to bundled
-    let ollama_cmd = if Command::new("ollama").arg("--version").output().is_ok() {
-        "ollama".to_string()
-    } else {
-        // Use bundled Ollama from app data directory
-        let app_data_dir = app_handle
-            .path()
-            .app_data_dir()
-            .map_err(|e| format!("Failed to get app data directory: {}", e))?;
-        
-        app_data_dir.join("ollama").join("ollama").to_string_lossy().to_string()
-    };
+    // Use system Ollama
+    let ollama_cmd = resolve_ollama_binary().ok_or_else(||
+        "Ollama is not installed or not found in PATH. Install from https://ollama.com/download or set OLLAMA_PATH.".to_string()
+    )?;
     
     let mut cmd = Command::new(ollama_cmd);
     cmd.env("OLLAMA_HOST", "127.0.0.1:11434")
@@ -249,4 +172,36 @@ pub fn run() {
 
 fn main() {
     run();
+}
+
+fn resolve_ollama_binary() -> Option<String> {
+    // 1) Explicit env override
+    if let Ok(explicit) = std::env::var("OLLAMA_PATH") {
+        if !explicit.is_empty() {
+            return Some(explicit);
+        }
+    }
+
+    // 2) Use `which ollama`
+    if Command::new("which").arg("ollama").output().ok().and_then(|o| {
+        if o.status.success() { Some(String::from_utf8_lossy(&o.stdout).trim().to_string()) } else { None }
+    }).filter(|s| !s.is_empty()).is_some() {
+        let path = String::from_utf8_lossy(&Command::new("which").arg("ollama").output().ok()?.stdout).trim().to_string();
+        if !path.is_empty() { return Some(path); }
+    }
+
+    // 3) Common macOS locations (Intel and Apple Silicon Homebrew)
+    let candidates = [
+        "/usr/local/bin/ollama",
+        "/opt/homebrew/bin/ollama",
+        "/usr/bin/ollama",
+        "/bin/ollama",
+    ];
+    for candidate in candidates.iter() {
+        if std::path::Path::new(candidate).exists() {
+            return Some(candidate.to_string());
+        }
+    }
+
+    None
 }
