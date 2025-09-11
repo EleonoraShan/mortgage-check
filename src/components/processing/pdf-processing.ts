@@ -1,6 +1,7 @@
 import { decode, encode } from 'gpt-tokenizer';
 
-import ollama from 'ollama/browser'
+import PromisePool from '@supercharge/promise-pool';
+import ollama from 'ollama/browser';
 import { AnalysisItemI } from "../analysis/analysis.interfaces";
 import { defaultModel } from './constants';
 import { parseOllamaJson } from './parse-ollama-json';
@@ -69,9 +70,12 @@ async function summariseChunk(excerpt: string) {
     stream: false,
   });
 
-  console.log({ response})
+  console.log('Chunk analysis response', response)
 
-  return parseOllamaJson(response.message.content)
+  const parsedData = parseOllamaJson(response.message.content)
+
+  console.log('Chunk analyses parsed output', parsedData)
+  return parsedData
 }
 
 // ---------------------------------------------------------------------------
@@ -87,7 +91,7 @@ async function mergeSummaries(summaries: {analysis: AnalysisItemI[], notes: stri
     stream: false,
   });
 
-    return parseOllamaJson(response.message.content);
+  return response.message.content;
 }
 
 // ---------------------------------------------------------------------------
@@ -96,14 +100,12 @@ async function mergeSummaries(summaries: {analysis: AnalysisItemI[], notes: stri
 export const  summarisePdf = async (rawText: string) => {
   const chunks = chunkText(rawText, 4000);
 
-  const chunkSummaries = await Promise.all(
-    chunks.map(chunk => summariseChunk(chunk))
-  );
+  const { results: chunkSummaries} = await PromisePool.for(chunks).withConcurrency(2).process((chunk) =>summariseChunk(chunk))
 
-  console.log({ chunkSummaries})
+  console.log('chunkSummaries', chunkSummaries)
 
   const merged = await mergeSummaries(chunkSummaries);
 
-  console.log({ merged})
+  console.log('merged analysis', merged)
   return merged
 }

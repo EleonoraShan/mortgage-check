@@ -6,7 +6,7 @@ Please produce a risk analysis for a mortgage broker using the following documen
 The document analysis is an array of jsons where each item is an analysis of mortgage risk generated from a different client document.
 Client data is general information about the client and how much they are looking to borrow.
 
-Produce a **structured summary** of lending risk in jsons format. Avoid multiple analyses covering the same point.
+Produce a **structured summary** of lending risk in jsons format. Avoid multiple analyses covering the same point but include all information relevant to borrowing for a mortgage.
 Include items for which more information should be submitted. Items requiring more information should have the risk_status Insufficient Information.
 
 Output the analysis as a JSON array of objects with the keys: title, risk_status, explanation. 

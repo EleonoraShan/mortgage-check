@@ -45,13 +45,13 @@ export const useRunAnalysis = () => {
         .process(async (file) => {
           console.log('Processing file:', file.name)
           // only analyse each file once
-          if (file.fileAnalysisSummaryJson) {
-            console.log('Using cached analysis for:', file.name)
-            return file.fileAnalysisSummaryJson
-          }
+          // if (file.fileAnalysisSummaryJson) {
+          //   console.log('Using cached analysis for:', file.name)
+          //   return file.fileAnalysisSummaryJson
+          // }
           const summary = await summarisePdf(file.fileText)
           
-          updateFileAnalysis(file.id, JSON.stringify(summary))
+          updateFileAnalysis(file.id, summary)
           
           return summary
         })
