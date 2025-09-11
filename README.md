@@ -14,7 +14,7 @@ On launch, if you already have Ollama installed and gpt-oss:20b downloaded Ollam
 
 If you don't have either one (or both), you will see some instructions for how to download them both. Since the model is fairly large this can take a little while.
 
-Once Ollama is installed and gpt-oss:20b downloaded (pulled) you can re-start the app and test as usual
+Once Ollama is installed and gpt-oss:20b downloaded (pulled) you can click the retry button to initialise the app
 
 # How to test
 
