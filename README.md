@@ -1,3 +1,6 @@
+
+<img width="699" height="165" alt="Screenshot 2025-09-10 at 19 45 55" src="https://github.com/user-attachments/assets/c8325c9c-7887-49ac-aef6-2f21a029b3da" />
+
 # Lendomus
 
 After the initial download and set up the app runs completely offline. Users (mortgage brokers) can use the app to analyse client documents for information like:
