@@ -1,5 +1,5 @@
-import { AttachedFile } from '../components/client-screen/client-provider';
 import { AnalysisItemI } from '../components/analysis/analysis.interfaces';
+import { AttachedFile } from '../components/client-screen/client-provider';
 import { ClientDataI } from '../components/client-screen/client.interfaces';
 
 export interface Message {
@@ -21,6 +21,7 @@ const STORAGE_KEYS = {
   CLIENTS: 'mortgage-check-clients',
   ACTIVE_CLIENT: 'mortgage-check-active-client',
   CLIENT_SESSION: (clientId: string) => `mortgage-check-session-${clientId}`,
+  WELCOME_SEEN: 'mortgage-check-welcome-seen',
 };
 
 // Client data persistence
@@ -95,6 +96,24 @@ export const clearClientSessionFromStorage = (clientId: string) => {
     localStorage.removeItem(STORAGE_KEYS.CLIENT_SESSION(clientId));
   } catch (error) {
     console.error('Failed to clear client session from localStorage:', error);
+  }
+};
+
+// App-level flags
+export const saveWelcomeSeenToStorage = () => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.WELCOME_SEEN, 'true');
+  } catch (error) {
+    console.error('Failed to save welcome seen flag to localStorage:', error);
+  }
+};
+
+export const loadWelcomeSeenFromStorage = (): boolean => {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.WELCOME_SEEN) === 'true';
+  } catch (error) {
+    console.error('Failed to load welcome seen flag from localStorage:', error);
+    return false;
   }
 };
 
